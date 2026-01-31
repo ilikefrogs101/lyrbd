@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>MusicPlayer</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <NoWarn>IDE0090,IDE0290</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JAJ.Packages.MiniAudioEx" Version="3.0.0" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
+  </ItemGroup>
+</Project>
