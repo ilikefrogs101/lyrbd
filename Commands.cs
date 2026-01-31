@@ -88,8 +88,29 @@ public static class Commands {
 
         MusicPlayer.Query.Enquire(type, source);
     }
+    [Command(Name = "playlist", Description = "modify playlists")]
+    [Argument(Name = "playlist", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "mode", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "id", ArgumentType = ArgumentType.PositionalOptional)]
     public static void Playlist(Dictionary<string, string> arguments) {
+        string playlist = arguments["playlist"];
+        string mode = arguments["mode"];
+        string id = null;
 
+        if(arguments.ContainsKey("id"))
+            id = arguments["id"];
+
+        switch (mode) {
+            case "add":
+                TrackManager.AddToPlaylist(playlist, id);
+                break;
+            case "remove":
+                TrackManager.RemoveFromPlaylist(playlist, id);
+                break;
+            case "delete":
+                TrackManager.DeletePlaylist(playlist);
+                break;
+        }
     }
     [Command(Name = "shuffle", Description = "change the shuffle setting")]
     [Argument(Name = "on/off", ArgumentType = ArgumentType.PositionalRequired)]

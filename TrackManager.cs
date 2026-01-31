@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using MiniAudioEx.Native;
 
 namespace ilikefrogs101.MusicPlayer;
 public static class TrackManager {
@@ -35,6 +36,49 @@ public static class TrackManager {
     }
     public static string[] GetAlbumList() {
         return [.. _albums.Keys];
+    }
+
+    public static void AddToPlaylist(string playlist, string toAdd) {
+        if(!_persistantData._playlists.ContainsKey(playlist)) {
+            _persistantData._playlists.Add(playlist, new(playlist, new()));
+        }
+
+        string type = toAdd.Split(':')[0];
+        string id = toAdd.Split(':')[1];
+        
+        switch (type) {
+            case "track":
+                _persistantData._playlists[playlist].Tracks.Add(id);
+                break;
+            case "playlist":
+                for(int i = 0; i < GetPlaylist(id).Tracks.Count; ++i) {
+                    string trackId = GetPlaylist(id).Tracks.ElementAt(i);
+                    _persistantData._playlists[playlist].Tracks.Add(trackId);
+                }
+                break;
+            case "artist":
+                for(int i = 0; i < GetArtist(id).Tracks.Count; ++i) {
+                    string trackId = GetArtist(id).Tracks.ElementAt(i);
+                    _persistantData._playlists[playlist].Tracks.Add(trackId);
+                }
+                break;
+            case "album":
+                for(int i = 0; i < GetAlbum(id).Tracks.Count; ++i) {
+                    string trackId = GetAlbum(id).Tracks.ElementAt(i);
+                    _persistantData._playlists[playlist].Tracks.Add(trackId);
+                }
+                break;
+        }
+
+        UpdatePersistantData();
+    }
+    public static void RemoveFromPlaylist(string playlist, string id) {
+        _persistantData._playlists[playlist].Tracks.Remove(id);
+
+        UpdatePersistantData();
+    }
+    public static void DeletePlaylist(string playlist) {
+        _persistantData._playlists.Remove(playlist);
     }
 
     public static void AddTrack(Track track) {
@@ -117,7 +161,7 @@ public record Track(
 );
 public record Playlist(
     string Title,
-    string[] Tracks
+    HashSet<string> Tracks
 );
 
 public record Artist(
