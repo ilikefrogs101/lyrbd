@@ -4,5 +4,5 @@ public class Command {
     public string Description;
     public List<ArgumentAttribute> PositionalArguments = new();
     public Dictionary<string, ArgumentAttribute> Flags = new();
-    public Action<Dictionary<string, object>> Execute;
+    public Action<Dictionary<string, string>> Execute;
 }

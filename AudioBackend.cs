@@ -1,10 +1,10 @@
 namespace ilikefrogs101.MusicPlayer;
 public abstract class AudioBackend {
-    public Track CurrentTrack { get; private set; }
-    public event Action FinishedCurrentTrack;
+    public string CurrentTrack { get; private set; }
+    public event Action OnCurrentTrackEnd;
 
     protected void _finished() {
-        FinishedCurrentTrack?.Invoke();
+        OnCurrentTrackEnd?.Invoke();
     }
 
     protected abstract void _playInternal();
@@ -19,8 +19,8 @@ public abstract class AudioBackend {
     public abstract ulong Progress();
     public abstract ulong Length();
     
-    public void Play(Track track) {
-        CurrentTrack = track;
+    public void Play(string id) {
+        CurrentTrack = id;
         _playInternal();
     }
 }

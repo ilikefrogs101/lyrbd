@@ -18,7 +18,7 @@ public class MiniAudioExBackend : AudioBackend {
     private Thread _updateThread;
 
     protected override void _playInternal() {
-        _clip = new AudioClip(Path.Combine(FileHandler.TrackStoragePath(), TrackManager.GetTrackID(CurrentTrack)));
+        _clip = new AudioClip(Path.Combine(FileHandler.TrackStoragePath(), CurrentTrack));
         _source.Play(_clip);
 
         if(!_subscribedToCallback) {
