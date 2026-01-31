@@ -1,5 +1,6 @@
 using System.Net.Sockets;
 using System.Text;
+using ilikefrogs101.Logging;
 
 namespace ilikefrogs101.MusicPlayer;
 public static class IcpHandler {
@@ -30,7 +31,7 @@ public static class IcpHandler {
             int bytesRead = client.Receive(buffer);
 
             string command = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            Console.WriteLine($"Received Command \"{command}\"");
+            Log.DebugMessage($"Received Command \"{command}\"");
             CommandReceived?.Invoke(command);
         }
     }
@@ -39,7 +40,6 @@ public static class IcpHandler {
             Socket client = _clients[i];
 
             if(!client.Connected) {
-                _clients.Remove(client);
                 continue;
             }
 

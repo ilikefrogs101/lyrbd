@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text;
 
 namespace ilikefrogs101.CommandHandler;
 public static class CommandRegistry {
@@ -17,7 +18,7 @@ public static class CommandRegistry {
             Command command = new Command {
                 Name = commandAttribute.Name,
                 Description = commandAttribute.Description,
-                Execute = (Dictionary<string, object> arguments) => method.Invoke(null, new object[]{arguments})
+                Execute = (Dictionary<string, object> arguments) => method.Invoke(null, [arguments])
             };
 
             IEnumerable<ArgumentAttribute> arguments = method.GetCustomAttributes<ArgumentAttribute>();
@@ -37,5 +38,42 @@ public static class CommandRegistry {
         if(!_commands.TryGetValue(name, out Command command)) return null;
 
         return command;
+    }
+    public static string HelpMenu() {
+        StringBuilder menu = new();
+
+        for(int i = 0; i < _commands.Count; ++i) {
+            Command command = _commands.ElementAt(i).Value;
+            menu.Append(command.Name);
+            menu.Append(": ");
+            menu.Append(command.Description);
+            menu.Append("\n  Usage: ");
+            menu.Append(command.Name);
+            for(int j = 0; j < command.PositionalArguments.Count; ++j) {
+                if(command.PositionalArguments[j].ArgumentType == ArgumentType.PositionalOptional) {
+                    menu.Append(" ?");
+                }
+                else {
+                    menu.Append(" [");
+                }
+
+                menu.Append(command.PositionalArguments[j].Name);
+
+                if(command.PositionalArguments[j].ArgumentType == ArgumentType.PositionalOptional) {
+                    menu.Append('?');
+                }
+                else {
+                    menu.Append(']');
+                }           
+            }
+            for(int j = 0; j < command.Flags.Count; ++j) {
+                menu.Append(" --");
+                menu.Append(command.Flags.ElementAt(j).Value.Name);
+                menu.Append(" [value]");
+            } 
+            menu.Append("\n\n");
+        }
+
+        return menu.ToString();
     }
 }
