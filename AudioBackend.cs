@@ -18,6 +18,7 @@ public abstract class AudioBackend {
     public abstract void SetVolume(float volume);
     public abstract ulong Progress();
     public abstract ulong Length();
+    public abstract float Volume();
     
     public void Play(string id) {
         CurrentTrack = id;

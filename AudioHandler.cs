@@ -69,7 +69,7 @@ public static class AudioHandler {
         _loop = loop;
     }
     public static void SetVolume(float volumePercent) {
-        _backend.SetVolume(volumePercent);
+        _backend.SetVolume(volumePercent / 100);
     }
     public static void Play(string id) {
         _initialise();
@@ -142,6 +142,15 @@ public static class AudioHandler {
     }
     public static int GetQueuePosition() {
         return _queueIndex;
+    }
+    public static bool GetShuffleState() {
+        return _shuffle;
+    }
+    public static bool GetLoopState() {
+        return _loop;
+    }
+    public static float GetVolume() {
+        return _backend.Volume() * 100;
     }
     
     private static void Shuffle<T>(this IList<T> list)

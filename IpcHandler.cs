@@ -3,7 +3,7 @@ using System.Text;
 using ilikefrogs101.Logging;
 
 namespace ilikefrogs101.MusicPlayer;
-public static class IcpHandler {
+public static class IpcHandler {
     private const string SOCKET_PATH = "/tmp/musicplayer.sock";
     private const int PENDING_CONNECTIONS_MAX = 5;
     private const int BUFFER_SIZE = 1024;
@@ -31,7 +31,7 @@ public static class IcpHandler {
             int bytesRead = client.Receive(buffer);
 
             string command = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            Log.DebugMessage($"Received Command \"{command}\"");
+            Log.DebugMessage($"Received: {command}");
             CommandReceived?.Invoke(command);
         }
     }

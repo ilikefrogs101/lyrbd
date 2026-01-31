@@ -69,6 +69,9 @@ public class MiniAudioExBackend : AudioBackend {
     public override ulong Length() {
         return _source.Length / SAMPLE_RATE;
     }
+    public override float Volume() {
+        return _source.Volume;
+    }
     public MiniAudioExBackend() {
         AudioContext.Initialize(SAMPLE_RATE, CHANNELS);
         _source = new AudioSource();
