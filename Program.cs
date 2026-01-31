@@ -5,11 +5,12 @@ namespace ilikefrogs101.MusicPlayer;
 public static class Program {
     public static void Main() {
         Log.Response += IcpHandler.BroadcastResponse;
+        Log.DebugInformation += Console.WriteLine;
+        Log.ErrorInformation += Console.WriteLine;
 
         CommandRegistry.LoadCommands(typeof(Commands));
 
         IcpHandler.CommandReceived += CommandParser.ParseCommand;
         IcpHandler.ListenForCommands();
-
     }
 }

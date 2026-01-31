@@ -33,25 +33,25 @@ public static class Commands {
 
     }
     [Command(Name = "play", Description = "play a track, playlist, album, or artist")]
-    [Argument(Name = "id", ValueType = typeof(string), ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "id", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Play(Dictionary<string, object> arguments) {
 
     }
     [Command(Name = "forward", Description = "skip forwards in the current track")]
-    [Argument(Name = "seconds", ValueType = typeof(ulong), ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "seconds", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Forward(Dictionary<string, object> arguments) {
 
     }
     [Command(Name = "backward", Description = "skip backwards in the current track")]
-    [Argument(Name = "seconds", ValueType = typeof(ulong), ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "seconds", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Backward(Dictionary<string, object> arguments) {
 
     }
     [Command(Name = "import", Description = "import a track to be played")]
-    [Argument(Name = "path", ValueType = typeof(string), ArgumentType = ArgumentType.PositionalRequired)]
-    [Argument(Name = "title", ValueType = typeof(string), ArgumentType = ArgumentType.Flag)]
-    [Argument(Name = "artists", ValueType = typeof(string), ArgumentType = ArgumentType.Flag)]
-    [Argument(Name = "album", ValueType = typeof(string), ArgumentType = ArgumentType.Flag)]
+    [Argument(Name = "path", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "title", ArgumentType = ArgumentType.Flag)]
+    [Argument(Name = "artists", ArgumentType = ArgumentType.Flag)]
+    [Argument(Name = "album", ArgumentType = ArgumentType.Flag)]
     public static void Import(Dictionary<string, object> arguments) {
 
     }
@@ -59,8 +59,8 @@ public static class Commands {
 
     }
     [Command(Name = "query", Description = "fetch information from the music player")]
-    [Argument(Name = "type", ValueType = typeof(string), ArgumentType = ArgumentType.PositionalRequired)]
-    [Argument(Name = "location", ValueType = typeof(string), ArgumentType = ArgumentType.PositionalOptional)]
+    [Argument(Name = "type", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "location", ArgumentType = ArgumentType.PositionalOptional)]
     public static void Query(Dictionary<string, object> arguments) {
 
     }
@@ -68,17 +68,17 @@ public static class Commands {
 
     }
     [Command(Name = "shuffle", Description = "change the shuffle setting")]
-    [Argument(Name = "on/off", ValueType = typeof(string), ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "on/off", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Shuffle(Dictionary<string, object> arguments) {
 
     }
     [Command(Name = "loop", Description = "change the loop setting")]
-    [Argument(Name = "on/off", ValueType = typeof(string), ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "on/off", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Loop(Dictionary<string, object> arguments) {
 
     }
     [Command(Name = "volume", Description = "change the volume setting")]
-    [Argument(Name = "percent", ValueType = typeof(string), ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "percent", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Volume(Dictionary<string, object> arguments) {
 
     }
