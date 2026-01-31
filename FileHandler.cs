@@ -12,7 +12,8 @@ public static class FileHandler {
     public static bool UnderscoreMeansSpace = false;
     public static bool HyphenMeansSpace = false;
     public static bool AutoCapitalise = false;
-    public static bool StripNonLetters = false;
+    public static bool FilterCharacters = false;
+    public static bool StripNumbers = false;
 
     public static void UpdatePersistantData(PersistantData persistantData) {
         string json = JsonSerializer.Serialize(persistantData);
@@ -66,7 +67,8 @@ public static class FileHandler {
         UnderscoreMeansSpace = false;
         HyphenMeansSpace = false;
         AutoCapitalise = false;
-        StripNonLetters = false;
+        FilterCharacters = false;
+        StripNumbers = false;
     }
     private static string _getTitleFromFile(string path) {
         if(TitleOverride != null) {
@@ -90,11 +92,15 @@ public static class FileHandler {
         if(SpaceBeforeCapitals) {
             title = Regex.Replace(title, "(?<!^)(?<!\\s)([A-Z])", " $1");
         }
+        if(FilterCharacters) {
+            title = Regex.Replace(title, @"[^\p{L} \(\),\.\:;!?'""\-]", "");
+        }
+        if(StripNumbers) {
+            title = Regex.Replace(title, @"\s*\d+\s*", " ");
+            title = Regex.Replace(title, @"\s+", " ").Trim();
+        }
         if(AutoCapitalise) {
             title = Regex.Replace(title, @"(?<=^|\s)\p{L}", m => m.Value.ToUpper());
-        }
-        if(StripNonLetters) {
-            title = Regex.Replace(title, @"[^\p{L}]", "");
         }
 
         return title;

@@ -33,6 +33,12 @@ public static class Commands {
     public static void Previous(Dictionary<string, string> arguments) {
         AudioHandler.Previous();
     }
+    [Command(Name = "skipqueue", Description = "skip to a position in the current queue")]
+    [Argument(Name = "position", ArgumentType = ArgumentType.PositionalRequired)]
+    public static void SkipQueue(Dictionary<string, string> arguments) {
+        int position = Convert.ToInt32(arguments["position"]);
+        AudioHandler.SkipQueue(position);
+    }
     [Command(Name = "play", Description = "play a track, playlist, album, or artist")]
     [Argument(Name = "id", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Play(Dictionary<string, string> arguments) {
@@ -61,19 +67,20 @@ public static class Commands {
     [Argument(Name = "underscoremeansspace", ArgumentType = ArgumentType.Flag, Boolean = true)]
     [Argument(Name = "hyphenmeansspace", ArgumentType = ArgumentType.Flag, Boolean = true)]
     [Argument(Name = "autocapitalise", ArgumentType = ArgumentType.Flag, Boolean = true)]
-    [Argument(Name = "stripnonletters", ArgumentType = ArgumentType.Flag, Boolean = true)]
+    [Argument(Name = "filtercharacters", ArgumentType = ArgumentType.Flag, Boolean = true)]
+    [Argument(Name = "stripnumbers", ArgumentType = ArgumentType.Flag, Boolean = true)]
     public static void Import(Dictionary<string, string> arguments) {
         if(arguments.ContainsKey("titleoverride"))
-            FileHandler.TitleOverride = arguments["title"];
+            FileHandler.TitleOverride = arguments["titleoverride"];
 
         if(arguments.ContainsKey("artistsoverride"))
-            FileHandler.ArtistsOverride = arguments["artists"].Split(',');
+            FileHandler.ArtistsOverride = arguments["artistsoverride"].Split(',');
 
         if(arguments.ContainsKey("albumoverride"))
-            FileHandler.AlbumOverride = arguments["album"];
+            FileHandler.AlbumOverride = arguments["albumoverride"];
 
         if(arguments.ContainsKey("tracknumberoverride"))
-            FileHandler.TrackNumberOverride = Convert.ToUInt32(arguments["tracknumber"]);
+            FileHandler.TrackNumberOverride = Convert.ToUInt32(arguments["tracknumberoverride"]);
 
         if(arguments.ContainsKey("spacebeforecapitals"))
             FileHandler.SpaceBeforeCapitals = true;
@@ -87,8 +94,11 @@ public static class Commands {
         if(arguments.ContainsKey("autocapitalise"))
             FileHandler.AutoCapitalise = true;
 
-        if(arguments.ContainsKey("stripnonletters"))
-            FileHandler.StripNonLetters = true;
+        if(arguments.ContainsKey("filtercharacters"))
+            FileHandler.FilterCharacters = true;
+
+        if(arguments.ContainsKey("stripnumbers"))
+            FileHandler.StripNumbers = true;
 
         string path = arguments["path"];
         FileHandler.Import(path);

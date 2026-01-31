@@ -41,15 +41,23 @@ public static class Query {
                 _lookupTracks(source);
                 break;
             case "artists":
-                _lookupTracks(source);
+                _lookupArtists(source);
                 break;
             case "albums":
-                _lookupTracks(source);
+                _lookupAlbums(source);
                 break;
         }
     }
 
     private static void _lookupTracks(string source) {
+
+        if(source == null) {
+            string[] tracks = TrackManager.GetTrackList();
+            Log.OutputResponse(string.Join('\n', tracks));
+            return;
+        }
+
+
         string idType = source.Split(':')[0];
         string id = source.Split(':')[1];
 
@@ -66,6 +74,12 @@ public static class Query {
         }
     }
     private static void _lookupArtists(string source) {
+        if(source == null) {
+            string[] artists = TrackManager.GetArtistList();
+            Log.OutputResponse(string.Join('\n', artists));
+            return;
+        }
+
         string idType = source.Split(':')[0];
         string id = source.Split(':')[1];
 
@@ -81,6 +95,12 @@ public static class Query {
         }
     }
     private static void _lookupAlbums(string source) {
+        if(source == null) {
+            string[] albums = TrackManager.GetAlbumList();
+            Log.OutputResponse(string.Join('\n', albums));
+            return;
+        }
+
         string idType = source.Split(':')[0];
         string id = source.Split(':')[1];
 

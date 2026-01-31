@@ -47,6 +47,10 @@ public static class AudioHandler {
         }
         _pickNextTrack();
     }
+    public static void SkipQueue(int position) {
+        _queueIndex = position;
+        _pickNextTrack();
+    }
     public static void Forward(ulong seconds) {
         _backend.Forward(seconds);
     }
@@ -81,6 +85,7 @@ public static class AudioHandler {
     }
 
     private static void _buildQueueFromSource() {
+        _queueIndex = 0;
         string type = _playSource.Split(':')[0];
         string id = _playSource.Split(':')[1];
 
@@ -141,7 +146,7 @@ public static class AudioHandler {
         return [.. _queue];
     }
     public static int GetQueuePosition() {
-        return _queueIndex;
+        return _queueIndex - 1;
     }
     public static bool GetShuffleState() {
         return _shuffle;
