@@ -13,8 +13,12 @@ public static class FileHandler {
         File.WriteAllText(_persistantDataPath(), json);
     }
     public static PersistantData LoadPersistantData() {
-        string json = File.ReadAllText(_persistantDataPath());
-        return JsonSerializer.Deserialize<PersistantData>(json);
+        if(File.Exists(_persistantDataPath())) {
+            string json = File.ReadAllText(_persistantDataPath());
+            return JsonSerializer.Deserialize<PersistantData>(json);
+        }
+
+        return new(new(), new());
     }
 
     public static void ImportTrack(string path) {
@@ -25,8 +29,9 @@ public static class FileHandler {
         _resetOverrides();
 
         Track track = new Track(title, artists, album, trackNumber);
-        _moveTrack(track, path);
+        _moveTrack(TrackManager.GetTrackID(track), path);
         TrackManager.AddTrack(track);
+        TrackManager.UpdatePersistantData();
     }
     private static void _resetOverrides() {
         TitleOverride = null;
@@ -79,13 +84,13 @@ public static class FileHandler {
         return tagFile.Tag.Track;
     }
 
-    private static void _moveTrack(Track track, string path) {
-        string storagePath = Path.Combine(TrackStoragePath(), TrackManager.GetTrackStorageID(track));
-        File.Copy(path, storagePath);
+    private static void _moveTrack(string id, string path) {
+        string storagePath = Path.Combine(TrackStoragePath(), TrackManager.GetTrackStorageID(id));
+        File.Copy(path, storagePath, true);
 
-        TagLib.File tagFile = TagLib.File.Create(storagePath);
-        tagFile.Tag.Clear();
-        tagFile.Save();
+        //TagLib.File tagFile = TagLib.File.Create(storagePath);
+        //tagFile.Tag.Clear();
+        //tagFile.Save();
     }
 
     private static string _persistantDataPath() {

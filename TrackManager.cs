@@ -38,10 +38,13 @@ public static class TrackManager {
     }
 
     public static void AddTrack(Track track) {
-        _persistantData._tracks.Add(GetTrackID(track), track);
+        _persistantData._tracks[GetTrackID(track)] = track;
         GenerateNonPersistantData();
     }
 
+    public static void UpdatePersistantData() {
+        FileHandler.UpdatePersistantData(_persistantData);
+    }
     public static void GenerateNonPersistantData() {
         _artists = new();
         _albums = new();
@@ -87,11 +90,11 @@ public static class TrackManager {
     public static string GetTrackID(Track track) {
         return $"{track.Album}/{track.Title}";
     }
-    public static string GetTrackStorageID(Track track) {
+    public static string GetTrackStorageID(string id) {
         StringBuilder output = new StringBuilder();
 
         using (SHA256 sha256Hash = SHA256.Create()) {
-            byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(GetTrackID(track)));
+            byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(id));
             foreach (byte b in bytes) {
                 output.Append(b.ToString("x2"));
             }

@@ -57,10 +57,17 @@ public static class Commands {
     [Argument(Name = "album", ArgumentType = ArgumentType.Flag)]
     [Argument(Name = "tracknumber", ArgumentType = ArgumentType.Flag)]
     public static void Import(Dictionary<string, string> arguments) {
-        FileHandler.TitleOverride = arguments["title"];
-        FileHandler.ArtistsOverride = arguments["artists"].Split(',');
-        FileHandler.AlbumOverride = arguments["album"];
-        FileHandler.TrackNumberOverride = Convert.ToUInt32(arguments["tracknumber"]);
+        if(arguments.ContainsKey("title"))
+            FileHandler.TitleOverride = arguments["title"];
+
+        if(arguments.ContainsKey("artists"))
+            FileHandler.ArtistsOverride = arguments["artists"].Split(',');
+
+        if(arguments.ContainsKey("album"))
+            FileHandler.AlbumOverride = arguments["album"];
+
+        if(arguments.ContainsKey("tracknumber"))
+            FileHandler.TrackNumberOverride = Convert.ToUInt32(arguments["tracknumber"]);
 
         string path = arguments["path"];
         FileHandler.ImportTrack(path);
@@ -69,11 +76,16 @@ public static class Commands {
 
     }
     [Command(Name = "query", Description = "fetch information from the music player")]
-    [Argument(Name = "mode", ArgumentType = ArgumentType.PositionalRequired)]
     [Argument(Name = "type", ArgumentType = ArgumentType.PositionalRequired)]
     [Argument(Name = "source", ArgumentType = ArgumentType.PositionalOptional)]
     public static void Query(Dictionary<string, string> arguments) {
+        string type = arguments["type"];
+        string source = null;
 
+        if(arguments.ContainsKey("source"))
+            source = arguments["source"];
+
+        MusicPlayer.Query.Enquire(type, source);
     }
     public static void Playlist(Dictionary<string, string> arguments) {
 

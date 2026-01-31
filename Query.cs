@@ -1,29 +1,18 @@
+using System.ComponentModel;
 using System.Text;
 using ilikefrogs101.Logging;
 
 namespace ilikefrogs101.MusicPlayer;
 public static class Query {
-    public static void Enquire(string mode, string type, string source) {
-        switch (mode) {
-            case "list":
-                _list(type, source);
-                break;
-            case "lookup":
-                _lookup(type, source);
-                break;
-        }
-    }
-
-    private static void _list(string type, string source) {
-
-    }
-    private static void _lookup(string type, string source) {
-
+    public static void Enquire(string type, string source) {
         if (source == "current") {
             source = AudioHandler.GetCurrentTrackId();
         }
 
         switch (type) {
+            case "current":
+                _currentTrack();
+                break;
             case "source":
                 _source();
                 break;
@@ -33,37 +22,74 @@ public static class Query {
             case "queueposition":
                 _queuePosition();
                 break;
-            case "title":
-                _trackTitle(source);
+            case "progress":
+                _currentTrackProgress();
+                break;
+            case "length":
+                _currentTracklength();
+                break;
+            case "tracks":
+                _lookupTracks(source);
                 break;
             case "artists":
-                _trackArtists(source);
+                _lookupTracks(source);
                 break;
-            case "album":
-                _trackAlbum(source);
+            case "albums":
+                _lookupTracks(source);
                 break;
         }
     }
 
-    private static void _source() {
-        Log.OutputResponse(AudioHandler.GetSource());
+    private static void _lookupTracks(string source) {
+        string idType = source.Split(':')[0];
+        string id = source.Split(':')[1];
+
+
+        switch (idType) {
+            case "artist":
+                string[] tracks = [.. TrackManager.GetArtist(id).Tracks];
+                Log.OutputResponse(string.Join('\n', tracks));
+                break;
+            case "album":
+                tracks = [.. TrackManager.GetAlbum(id).Tracks];
+                Log.OutputResponse(string.Join('\n', tracks));
+                break;
+        }
     }
-    public static void _trackTitle(string track) {
-        Log.OutputResponse(TrackManager.GetTrack(track).Title);
+    private static void _lookupArtists(string source) {
+        string idType = source.Split(':')[0];
+        string id = source.Split(':')[1];
+
+        switch (idType) {
+            case "track":
+                string[] artists = [.. TrackManager.GetTrack(id).Artists];
+                Log.OutputResponse(string.Join('\n', artists));
+                break;
+            case "album":
+                artists = [.. TrackManager.GetAlbum(id).Artists];
+                Log.OutputResponse(string.Join('\n', artists));
+                break;
+        }
     }
-    public static void _trackArtists(string track) {
-        Log.OutputResponse(string.Join(',', TrackManager.GetTrack(track).Artists));
+    private static void _lookupAlbums(string source) {
+        string idType = source.Split(':')[0];
+        string id = source.Split(':')[1];
+
+        switch (idType) {
+            case "track":
+                string album = TrackManager.GetTrack(id).Album;
+                Log.OutputResponse(album);
+                break;
+            case "artist":
+                string[] albums = [.. TrackManager.GetArtist(id).Albums];
+                Log.OutputResponse(string.Join('\n', albums));
+                break;
+        }
     }
-    public static void _trackAlbum(string track){
-        Log.OutputResponse(TrackManager.GetTrack(track).Album);
+    private static void _currentTrack() {
+        Log.OutputResponse(AudioHandler.GetCurrentTrackId());
     }
-    public static void _currentTrackProgress() {
-        Log.OutputResponse(AudioHandler.GetProgress().ToString());
-    }
-    public static void _currentTrackLengthlength() {
-        Log.OutputResponse(AudioHandler.GetLength().ToString());
-    }
-    public static void _queue() {
+    private static void _queue() {
         StringBuilder output = new();
 
         string[] queue = AudioHandler.GetQueue();
@@ -76,7 +102,16 @@ public static class Query {
 
         Log.OutputResponse(output.ToString());
     }
-    public static void _queuePosition() {
+    private static void _queuePosition() {
         Log.OutputResponse(AudioHandler.GetQueuePosition().ToString());
+    }
+    private static void _source() {
+        Log.OutputResponse(AudioHandler.GetSource());
+    }
+    private static void _currentTrackProgress() {
+        Log.OutputResponse(AudioHandler.GetProgress().ToString());
+    }
+    private static void _currentTracklength() {
+        Log.OutputResponse(AudioHandler.GetLength().ToString());
     }
 }
