@@ -69,7 +69,9 @@ public static class CommandRegistry {
             for(int j = 0; j < command.Flags.Count; ++j) {
                 menu.Append(" --");
                 menu.Append(command.Flags.ElementAt(j).Value.Name);
-                menu.Append(" [value]");
+                
+                if(!command.Flags.ElementAt(j).Value.Boolean)
+                    menu.Append(" [value]");
             } 
             menu.Append("\n\n");
         }

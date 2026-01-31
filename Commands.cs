@@ -53,25 +53,45 @@ public static class Commands {
     }
     [Command(Name = "import", Description = "import a track to be played")]
     [Argument(Name = "path", ArgumentType = ArgumentType.PositionalRequired)]
-    [Argument(Name = "title", ArgumentType = ArgumentType.Flag)]
-    [Argument(Name = "artists", ArgumentType = ArgumentType.Flag)]
-    [Argument(Name = "album", ArgumentType = ArgumentType.Flag)]
-    [Argument(Name = "tracknumber", ArgumentType = ArgumentType.Flag)]
+    [Argument(Name = "titleoverride", ArgumentType = ArgumentType.Flag)]
+    [Argument(Name = "artistsoverride", ArgumentType = ArgumentType.Flag)]
+    [Argument(Name = "albumoverride", ArgumentType = ArgumentType.Flag)]
+    [Argument(Name = "tracknumberoverride", ArgumentType = ArgumentType.Flag)]
+    [Argument(Name = "spacebeforecapitals", ArgumentType = ArgumentType.Flag, Boolean = true)]
+    [Argument(Name = "underscoremeansspace", ArgumentType = ArgumentType.Flag, Boolean = true)]
+    [Argument(Name = "hyphenmeansspace", ArgumentType = ArgumentType.Flag, Boolean = true)]
+    [Argument(Name = "autocapitalise", ArgumentType = ArgumentType.Flag, Boolean = true)]
+    [Argument(Name = "stripnonletters", ArgumentType = ArgumentType.Flag, Boolean = true)]
     public static void Import(Dictionary<string, string> arguments) {
-        if(arguments.ContainsKey("title"))
+        if(arguments.ContainsKey("titleoverride"))
             FileHandler.TitleOverride = arguments["title"];
 
-        if(arguments.ContainsKey("artists"))
+        if(arguments.ContainsKey("artistsoverride"))
             FileHandler.ArtistsOverride = arguments["artists"].Split(',');
 
-        if(arguments.ContainsKey("album"))
+        if(arguments.ContainsKey("albumoverride"))
             FileHandler.AlbumOverride = arguments["album"];
 
-        if(arguments.ContainsKey("tracknumber"))
+        if(arguments.ContainsKey("tracknumberoverride"))
             FileHandler.TrackNumberOverride = Convert.ToUInt32(arguments["tracknumber"]);
 
+        if(arguments.ContainsKey("spacebeforecapitals"))
+            FileHandler.SpaceBeforeCapitals = true;
+        
+        if(arguments.ContainsKey("underscoremeansspace")) 
+            FileHandler.UnderscoreMeansSpace = true;
+        
+        if(arguments.ContainsKey("hyphenmeansspace")) 
+            FileHandler.HyphenMeansSpace = true;
+
+        if(arguments.ContainsKey("autocapitalise"))
+            FileHandler.AutoCapitalise = true;
+
+        if(arguments.ContainsKey("stripnonletters"))
+            FileHandler.StripNonLetters = true;
+
         string path = arguments["path"];
-        FileHandler.ImportTrack(path);
+        FileHandler.Import(path);
     }
     public static void Export(Dictionary<string, string> arguments) {
 

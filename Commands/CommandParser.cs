@@ -26,15 +26,15 @@ public static class CommandParser {
             string argument = arguments[i];
 
             if(argument.StartsWith("--")) {
-                ++i;
-                string value = arguments[i];
-                
-                if(value == null) {
-                    _parsingFailed();
-                    return;
+                string flag = argument.Replace("--", "");
+                string value = "";
+
+                if(!command.Flags[flag].Boolean) {
+                    ++i;
+                    value = arguments[i];
                 }
 
-                parsedArguments.Add(argument.Replace("--", ""), value);
+                parsedArguments.Add(flag, value);
             }
             else {
                 (string name, string value) = _parsePositionalArgument(command, position, arguments[i]);
