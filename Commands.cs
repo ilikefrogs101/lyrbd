@@ -1,11 +1,11 @@
 using ilikefrogs101.CommandHandler;
+using ilikefrogs101.Shutdown;
 
 namespace ilikefrogs101.MusicPlayer;
 public static class Commands {
     [Command(Name = "quit", Description = "kill the background process")]
     public static void Quit(Dictionary<string, object> arguments) {
-        Console.WriteLine("Quitting...");
-        Environment.Exit(0);
+        ShutdownHandler.RequestShutdown();
     }
 
     [Command(Name = "pause", Description = "pause the current track")]
@@ -52,6 +52,7 @@ public static class Commands {
     [Argument(Name = "title", ArgumentType = ArgumentType.Flag)]
     [Argument(Name = "artists", ArgumentType = ArgumentType.Flag)]
     [Argument(Name = "album", ArgumentType = ArgumentType.Flag)]
+    [Argument(Name = "tracknumber", ArgumentType = ArgumentType.Flag)]
     public static void Import(Dictionary<string, object> arguments) {
 
     }
