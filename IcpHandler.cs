@@ -36,8 +36,8 @@ public static class IcpHandler {
         }
     }
     public static void BroadcastResponse(string response) {
+        Log.DebugMessage($"Broadcasting: {response}");
         for(int i = 0; i < _clients.Count; ++i) {
-            Log.DebugMessage($"Broadcasting: {response}");
             Socket client = _clients[i];
 
             if(!client.Connected) {

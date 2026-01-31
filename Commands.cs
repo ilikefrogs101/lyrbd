@@ -1,3 +1,4 @@
+using System.Runtime.Serialization;
 using ilikefrogs101.CommandHandler;
 using ilikefrogs101.Shutdown;
 
@@ -93,16 +94,31 @@ public static class Commands {
     [Command(Name = "shuffle", Description = "change the shuffle setting")]
     [Argument(Name = "on/off", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Shuffle(Dictionary<string, string> arguments) {
-
+        string state = arguments["on/off"];
+        if(state == "on") {
+            AudioHandler.SetShuffle(true);
+        }
+        if(state == "off") {
+            AudioHandler.SetShuffle(false);
+        }
     }
     [Command(Name = "loop", Description = "change the loop setting")]
     [Argument(Name = "on/off", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Loop(Dictionary<string, string> arguments) {
-
+        string state = arguments["on/off"];
+        if(state == "on") {
+            AudioHandler.SetLoop(true);
+        }
+        if(state == "off") {
+            AudioHandler.SetLoop(false);
+        }
     }
     [Command(Name = "volume", Description = "change the volume setting")]
     [Argument(Name = "percent", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Volume(Dictionary<string, string> arguments) {
-
+        string percent = arguments["percent"];
+        percent = new string([.. percent.Where(char.IsDigit)]);
+        float volume = (float)Convert.ToDouble(percent);
+        AudioHandler.SetVolume(volume);
     }
 }
