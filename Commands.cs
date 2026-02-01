@@ -87,6 +87,12 @@ public static class Commands {
     public static void Export(Arguments arguments) {
 
     }
+    [Command(Name = "delete", Description = "delete a track")]
+    [Argument(Name = "id", ArgumentType = ArgumentType.PositionalRequired)]
+    public static void Delete(Arguments arguments) {
+        arguments.GetArgumentValue("id", out string id);
+        TrackManager.DeleteTrack(id);
+    }
     [Command(Name = "query", Description = "fetch information from the music player")]
     [Argument(Name = "type", ArgumentType = ArgumentType.PositionalRequired)]
     [Argument(Name = "source", ArgumentType = ArgumentType.PositionalOptional)]

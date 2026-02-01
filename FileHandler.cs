@@ -132,6 +132,10 @@ public static class FileHandler {
         return tagFile.Tag.Track;
     }
 
+    public static void DeleteTrack(string id) {
+        string storagePath = Path.Combine(TrackStoragePath(), TrackManager.GetTrackStorageID(id));
+        File.Delete(storagePath);
+    }
     private static void _moveTrack(string id, string path) {
         string storagePath = Path.Combine(TrackStoragePath(), TrackManager.GetTrackStorageID(id));
         File.Copy(path, storagePath, true);

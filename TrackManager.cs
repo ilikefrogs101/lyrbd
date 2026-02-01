@@ -85,6 +85,10 @@ public static class TrackManager {
         _persistantData._tracks[GetTrackID(track)] = track;
         GenerateNonPersistantData();
     }
+    public static void DeleteTrack(string id) {
+        _persistantData._tracks.Remove(id);
+        GenerateNonPersistantData();
+    }
 
     public static void UpdatePersistantData() {
         FileHandler.UpdatePersistantData(_persistantData);
