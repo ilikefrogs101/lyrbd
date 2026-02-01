@@ -9,7 +9,6 @@ public static class Program {
         Log.OnErrorInformation += Console.WriteLine;
 
         CommandRegistry.LoadCommands(typeof(Commands));
-
         TrackManager.Initialise();
 
         IpcHandler.CommandReceived += CommandParser.ParseCommand;

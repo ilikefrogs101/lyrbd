@@ -18,7 +18,7 @@ public static class CommandRegistry {
             Command command = new Command {
                 Name = commandAttribute.Name,
                 Description = commandAttribute.Description,
-                Execute = (Dictionary<string, string> arguments) => method.Invoke(null, [arguments])
+                Execute = (Arguments) => method.Invoke(null, [Arguments])
             };
 
             IEnumerable<ArgumentAttribute> arguments = method.GetCustomAttributes<ArgumentAttribute>();

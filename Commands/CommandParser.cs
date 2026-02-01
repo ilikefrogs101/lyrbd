@@ -20,7 +20,7 @@ public static class CommandParser {
             return;
         }
 
-        Dictionary<string, string> parsedArguments = new();
+        Arguments parsedArguments = new();
         int position = 0;
         for(int i = 0; i < arguments.Length; ++i) {
             string argument = arguments[i];
@@ -34,7 +34,7 @@ public static class CommandParser {
                     value = arguments[i];
                 }
 
-                parsedArguments.Add(flag, value);
+                parsedArguments.AddArgument(flag, value);
             }
             else {
                 (string name, string value) = _parsePositionalArgument(command, position, arguments[i]);
@@ -44,7 +44,7 @@ public static class CommandParser {
                     return;
                 }
 
-                parsedArguments.Add(name, value);
+                parsedArguments.AddArgument(name, value);
                 ++position;
             }
         }

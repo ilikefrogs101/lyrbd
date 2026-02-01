@@ -50,17 +50,14 @@ public static class Query {
     }
 
     private static void _lookupTracks(string source) {
-
-        if(source == null) {
+        if(source == default) {
             string[] tracks = TrackManager.GetTrackList();
             Log.OutputResponse(string.Join('\n', tracks));
             return;
         }
 
-
         string idType = source.Split(':')[0];
         string id = source.Split(':')[1];
-
 
         switch (idType) {
             case "artist":
@@ -74,7 +71,7 @@ public static class Query {
         }
     }
     private static void _lookupArtists(string source) {
-        if(source == null) {
+        if(source == default) {
             string[] artists = TrackManager.GetArtistList();
             Log.OutputResponse(string.Join('\n', artists));
             return;
@@ -95,7 +92,7 @@ public static class Query {
         }
     }
     private static void _lookupAlbums(string source) {
-        if(source == null) {
+        if(source == default) {
             string[] albums = TrackManager.GetAlbumList();
             Log.OutputResponse(string.Join('\n', albums));
             return;

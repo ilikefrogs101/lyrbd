@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using ilikefrogs101.CommandHandler;
 using ilikefrogs101.Shutdown;
@@ -5,56 +6,56 @@ using ilikefrogs101.Shutdown;
 namespace ilikefrogs101.MusicPlayer;
 public static class Commands {
     [Command(Name = "quit", Description = "kill the background process")]
-    public static void Quit(Dictionary<string, string> arguments) {
+    public static void Quit(Arguments arguments) {
         ShutdownHandler.RequestShutdown();
     }
 
     [Command(Name = "pause", Description = "pause the current track")]
-    public static void Pause(Dictionary<string, string> arguments) {
+    public static void Pause(Arguments arguments) {
         AudioHandler.Pause();
     }
     [Command(Name = "resume", Description = "resume playing the current track")]
-    public static void Resume(Dictionary<string, string> arguments) {
+    public static void Resume(Arguments arguments) {
         AudioHandler.Resume();
     }
     [Command(Name = "restart", Description = "restart the current track")]
-    public static void Restart(Dictionary<string, string> arguments) {
+    public static void Restart(Arguments arguments) {
         AudioHandler.Restart();
     }
     [Command(Name = "stop", Description = "stop playing the current track")]
-    public static void Stop(Dictionary<string, string> arguments) {
+    public static void Stop(Arguments arguments) {
         AudioHandler.Stop();
     }
     [Command(Name = "next", Description = "advance to the next track in the queue")]
-    public static void Next(Dictionary<string, string> arguments) {
+    public static void Next(Arguments arguments) {
         AudioHandler.Next();
     }
     [Command(Name = "previous", Description = "revert to the previous track in the queue")]
-    public static void Previous(Dictionary<string, string> arguments) {
+    public static void Previous(Arguments arguments) {
         AudioHandler.Previous();
     }
     [Command(Name = "skipqueue", Description = "skip to a position in the current queue")]
     [Argument(Name = "position", ArgumentType = ArgumentType.PositionalRequired)]
-    public static void SkipQueue(Dictionary<string, string> arguments) {
-        int position = Convert.ToInt32(arguments["position"]);
+    public static void SkipQueue(Arguments arguments) {
+        arguments.GetArgumentValue("position", out int position);
         AudioHandler.SkipQueue(position);
     }
     [Command(Name = "play", Description = "play a track, playlist, album, or artist")]
     [Argument(Name = "id", ArgumentType = ArgumentType.PositionalRequired)]
-    public static void Play(Dictionary<string, string> arguments) {
-        string id = arguments["id"];
+    public static void Play(Arguments arguments) {
+        arguments.GetArgumentValue("id", out string id);
         AudioHandler.Play(id);
     }
     [Command(Name = "forward", Description = "skip forwards in the current track")]
     [Argument(Name = "seconds", ArgumentType = ArgumentType.PositionalRequired)]
-    public static void Forward(Dictionary<string, string> arguments) {
-        ulong seconds = Convert.ToUInt64(arguments["seconds"]);
+    public static void Forward(Arguments arguments) {
+        arguments.GetArgumentValue("seconds", out ulong seconds);
         AudioHandler.Forward(seconds);
     }
     [Command(Name = "backward", Description = "skip backwards in the current track")]
     [Argument(Name = "seconds", ArgumentType = ArgumentType.PositionalRequired)]
-    public static void Backward(Dictionary<string, string> arguments) {
-        ulong seconds = Convert.ToUInt64(arguments["seconds"]);
+    public static void Backward(Arguments arguments) {
+        arguments.GetArgumentValue("seconds", out ulong seconds);
         AudioHandler.Backward(seconds);
     }
     [Command(Name = "import", Description = "import a track to be played")]
@@ -63,72 +64,45 @@ public static class Commands {
     [Argument(Name = "artistsoverride", ArgumentType = ArgumentType.Flag)]
     [Argument(Name = "albumoverride", ArgumentType = ArgumentType.Flag)]
     [Argument(Name = "tracknumberoverride", ArgumentType = ArgumentType.Flag)]
-    [Argument(Name = "spacebeforecapitals", ArgumentType = ArgumentType.Flag, Boolean = true)]
-    [Argument(Name = "underscoremeansspace", ArgumentType = ArgumentType.Flag, Boolean = true)]
-    [Argument(Name = "hyphenmeansspace", ArgumentType = ArgumentType.Flag, Boolean = true)]
+    [Argument(Name = "autospace", ArgumentType = ArgumentType.Flag, Boolean = true)]
     [Argument(Name = "autocapitalise", ArgumentType = ArgumentType.Flag, Boolean = true)]
-    [Argument(Name = "filtercharacters", ArgumentType = ArgumentType.Flag, Boolean = true)]
     [Argument(Name = "stripnumbers", ArgumentType = ArgumentType.Flag, Boolean = true)]
-    public static void Import(Dictionary<string, string> arguments) {
-        if(arguments.ContainsKey("titleoverride"))
-            FileHandler.TitleOverride = arguments["titleoverride"];
+    [Argument(Name = "strippunctuation", ArgumentType = ArgumentType.Flag, Boolean = true)]
+    public static void Import(Arguments arguments) {
+        arguments.GetArgumentValue("titleoverride", out FileHandler.TitleOverride);
+        arguments.GetArgumentValue("albumoverride", out FileHandler.TitleOverride);
+        arguments.GetArgumentValue("tracknumberoverride", out FileHandler.TrackNumberOverride);
 
-        if(arguments.ContainsKey("artistsoverride"))
-            FileHandler.ArtistsOverride = arguments["artistsoverride"].Split(',');
+        arguments.GetArgumentValue("artistsoverride", out string artists);
+        FileHandler.ArtistsOverride = artists.Split(',');
 
-        if(arguments.ContainsKey("albumoverride"))
-            FileHandler.AlbumOverride = arguments["albumoverride"];
+        FileHandler.AutoSpace = arguments.FlagTrigged("autospace");
+        FileHandler.AutoCapitalise = arguments.FlagTrigged("autocapitalise");
+        FileHandler.StripNumbers = arguments.FlagTrigged("stripnumbers");
+        FileHandler.StripPunctuation = arguments.FlagTrigged("strippunctuation");
 
-        if(arguments.ContainsKey("tracknumberoverride"))
-            FileHandler.TrackNumberOverride = Convert.ToUInt32(arguments["tracknumberoverride"]);
-
-        if(arguments.ContainsKey("spacebeforecapitals"))
-            FileHandler.SpaceBeforeCapitals = true;
-        
-        if(arguments.ContainsKey("underscoremeansspace")) 
-            FileHandler.UnderscoreMeansSpace = true;
-        
-        if(arguments.ContainsKey("hyphenmeansspace")) 
-            FileHandler.HyphenMeansSpace = true;
-
-        if(arguments.ContainsKey("autocapitalise"))
-            FileHandler.AutoCapitalise = true;
-
-        if(arguments.ContainsKey("filtercharacters"))
-            FileHandler.FilterCharacters = true;
-
-        if(arguments.ContainsKey("stripnumbers"))
-            FileHandler.StripNumbers = true;
-
-        string path = arguments["path"];
+        arguments.GetArgumentValue("path", out string path);
         FileHandler.Import(path);
     }
-    public static void Export(Dictionary<string, string> arguments) {
+    public static void Export(Arguments arguments) {
 
     }
     [Command(Name = "query", Description = "fetch information from the music player")]
     [Argument(Name = "type", ArgumentType = ArgumentType.PositionalRequired)]
     [Argument(Name = "source", ArgumentType = ArgumentType.PositionalOptional)]
-    public static void Query(Dictionary<string, string> arguments) {
-        string type = arguments["type"];
-        string source = null;
-
-        if(arguments.ContainsKey("source"))
-            source = arguments["source"];
-
+    public static void Query(Arguments arguments) {
+        arguments.GetArgumentValue("type", out string type);
+        arguments.GetArgumentValue("source", out string source);
         MusicPlayer.Query.Enquire(type, source);
     }
     [Command(Name = "playlist", Description = "modify playlists")]
     [Argument(Name = "playlist", ArgumentType = ArgumentType.PositionalRequired)]
     [Argument(Name = "mode", ArgumentType = ArgumentType.PositionalRequired)]
     [Argument(Name = "id", ArgumentType = ArgumentType.PositionalOptional)]
-    public static void Playlist(Dictionary<string, string> arguments) {
-        string playlist = arguments["playlist"];
-        string mode = arguments["mode"];
-        string id = null;
-
-        if(arguments.ContainsKey("id"))
-            id = arguments["id"];
+    public static void Playlist(Arguments arguments) {
+        arguments.GetArgumentValue("playlist", out string playlist);
+        arguments.GetArgumentValue("mode", out string mode);
+        arguments.GetArgumentValue("id", out string id);
 
         switch (mode) {
             case "add":
@@ -144,8 +118,8 @@ public static class Commands {
     }
     [Command(Name = "shuffle", Description = "change the shuffle setting")]
     [Argument(Name = "on/off", ArgumentType = ArgumentType.PositionalRequired)]
-    public static void Shuffle(Dictionary<string, string> arguments) {
-        string state = arguments["on/off"];
+    public static void Shuffle(Arguments arguments) {
+        arguments.GetArgumentValue("on/off", out string state);
         if(state == "on") {
             AudioHandler.SetShuffle(true);
         }
@@ -155,8 +129,8 @@ public static class Commands {
     }
     [Command(Name = "loop", Description = "change the loop setting")]
     [Argument(Name = "on/off", ArgumentType = ArgumentType.PositionalRequired)]
-    public static void Loop(Dictionary<string, string> arguments) {
-        string state = arguments["on/off"];
+    public static void Loop(Arguments arguments) {
+        arguments.GetArgumentValue("on/off", out string state);
         if(state == "on") {
             AudioHandler.SetLoop(true);
         }
@@ -166,9 +140,10 @@ public static class Commands {
     }
     [Command(Name = "volume", Description = "change the volume setting")]
     [Argument(Name = "percent", ArgumentType = ArgumentType.PositionalRequired)]
-    public static void Volume(Dictionary<string, string> arguments) {
-        string percent = arguments["percent"];
+    public static void Volume(Arguments arguments) {
+        arguments.GetArgumentValue("percent", out string percent);
         percent = new string([.. percent.Where(char.IsDigit)]);
+
         float volume = (float)Convert.ToDouble(percent);
         AudioHandler.SetVolume(volume);
     }

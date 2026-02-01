@@ -1,19 +1,18 @@
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace ilikefrogs101.MusicPlayer;
 public static class FileHandler {
-    public static string TitleOverride = null;
-    public static string[] ArtistsOverride = null;
-    public static string AlbumOverride = null;
-    public static uint TrackNumberOverride = uint.MaxValue;
-    public static bool SpaceBeforeCapitals = false;
-    public static bool UnderscoreMeansSpace = false;
-    public static bool HyphenMeansSpace = false;
+    public static string TitleOverride = default;
+    public static string[] ArtistsOverride = default;
+    public static string AlbumOverride = default;
+    public static uint TrackNumberOverride = default;
+    public static bool AutoSpace = false;
     public static bool AutoCapitalise = false;
-    public static bool FilterCharacters = false;
     public static bool StripNumbers = false;
+    public static bool StripPunctuation = false;
 
     public static void UpdatePersistantData(PersistantData persistantData) {
         string json = JsonSerializer.Serialize(persistantData);
@@ -59,19 +58,17 @@ public static class FileHandler {
         TrackManager.UpdatePersistantData();
     }
     private static void _resetOverrides() {
-        TitleOverride = null;
-        ArtistsOverride = null;
-        AlbumOverride = null;
-        TrackNumberOverride = uint.MaxValue;
-        SpaceBeforeCapitals = false;
-        UnderscoreMeansSpace = false;
-        HyphenMeansSpace = false;
+        TitleOverride = default;
+        ArtistsOverride = default;
+        AlbumOverride = default;
+        TrackNumberOverride = default;
+        AutoSpace = false;
         AutoCapitalise = false;
-        FilterCharacters = false;
         StripNumbers = false;
+        StripPunctuation = false;
     }
     private static string _getTitleFromFile(string path) {
-        if(TitleOverride != null) {
+        if(TitleOverride != default) {
             return TitleOverride;
         }
 
@@ -83,30 +80,28 @@ public static class FileHandler {
 
         string title = Path.GetFileNameWithoutExtension(path);
         
-        if(UnderscoreMeansSpace) {
-            title = title.Replace('_', ' ');
-        }
-        if(HyphenMeansSpace) {
-            title = title.Replace('-', ' ');
-        }
-        if(SpaceBeforeCapitals) {
-            title = Regex.Replace(title, "(?<!^)(?<!\\s)([A-Z])", " $1");
-        }
-        if(FilterCharacters) {
-            title = Regex.Replace(title, @"[^\p{L} \(\),\.\:;!?'""\-]", "");
+        if(StripPunctuation) {
+            title = Regex.Replace(title, @"[^\w\s]", "");
         }
         if(StripNumbers) {
-            title = Regex.Replace(title, @"\s*\d+\s*", " ");
-            title = Regex.Replace(title, @"\s+", " ").Trim();
+            title = Regex.Replace(title, @"\d+", "");
         }
+        if(AutoSpace) {
+            title = title.Replace('_', ' ');
+            title = title.Replace('-', ' ');
+            title = Regex.Replace(title, "(?<!^)([A-Z])", " $1");
+        }
+        title = Regex.Replace(title, @"\s+", " ").Trim();
         if(AutoCapitalise) {
-            title = Regex.Replace(title, @"(?<=^|\s)\p{L}", m => m.Value.ToUpper());
+            title = Regex.Replace(title, @"(^|\s)(\S)", match =>
+            {
+                return match.Groups[1].Value + match.Groups[2].Value.ToUpper();
+            });
         }
-
         return title;
     }
     private static string[] _getArtistsFromFile(string path) {
-        if(ArtistsOverride != null) {
+        if(ArtistsOverride != default) {
             return ArtistsOverride;
         }
 
@@ -115,7 +110,7 @@ public static class FileHandler {
         return tagFile.Tag.Performers;
     }
     private static string _getAlbumFromFile(string path) {
-        if(AlbumOverride != null) {
+        if(AlbumOverride != default) {
             return AlbumOverride;
         }
 
@@ -128,7 +123,7 @@ public static class FileHandler {
         return Path.GetFileName(Path.GetDirectoryName(path));
     }
     private static uint _getTrackNumberFromFile(string path) {
-        if(TrackNumberOverride != uint.MaxValue) {
+        if(TrackNumberOverride != default) {
             return TrackNumberOverride;
         }
 
