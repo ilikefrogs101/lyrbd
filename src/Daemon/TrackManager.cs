@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text;
-using MiniAudioEx.Native;
 
 namespace ilikefrogs101.MusicPlayer;
 public static class TrackManager {

@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ilikefrogs101.CLI" Version="1.0.0" />
+    <PackageReference Include="ilikefrogs101.ICP" Version="1.0.0" />
+    <PackageReference Include="ilikefrogs101.Logging" Version="1.0.0" />
+    <PackageReference Include="ilikefrogs101.Shutdown" Version="1.0.0" />
+    <PackageReference Include="JAJ.Packages.MiniAudioEx" Version="3.0.0" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
+  </ItemGroup>
+
+</Project>

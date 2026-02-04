@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using ilikefrogs101.CommandHandler;
+using ilikefrogs101.CLI;
 using ilikefrogs101.Shutdown;
 
 namespace ilikefrogs101.MusicPlayer;

@@ -1,4 +1,4 @@
-﻿using ilikefrogs101.CommandHandler;
+﻿using ilikefrogs101.CLI;
 using ilikefrogs101.Logging;
 
 namespace ilikefrogs101.MusicPlayer;
