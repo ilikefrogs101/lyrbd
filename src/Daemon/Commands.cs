@@ -1,7 +1,5 @@
 using System;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 using ilikefrogs101.CLI;
 using ilikefrogs101.Shutdown;
 
