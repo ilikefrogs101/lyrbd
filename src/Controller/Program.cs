@@ -10,7 +10,7 @@ public static class Program {
 
         IcpClient client = new IcpClient();
         client.Connect("/tmp/lyrbd.sock");
-
+        
         string rawCommand = Environment.CommandLine.Split(' ', 2)[1];
         client.Send(rawCommand);
 
