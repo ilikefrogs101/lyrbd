@@ -1,8 +1,9 @@
-using System.Diagnostics;
+using System.IO;
+using System.Threading;
 using ilikefrogs101.Shutdown;
 using MiniAudioEx.Core.StandardAPI;
 
-namespace ilikefrogs101.MusicPlayer;
+namespace Lyrbd.Daemon;
 public class MiniAudioExBackend : AudioBackend {
     private const int SAMPLE_RATE = 44100;
     private const int CHANNELS = 2;

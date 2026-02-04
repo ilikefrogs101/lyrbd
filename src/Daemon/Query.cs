@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Text;
 using ilikefrogs101.Logging;
 
-namespace ilikefrogs101.MusicPlayer;
+namespace Lyrbd.Daemon;
 public static class Query {
     public static void Enquire(string type, string source) {
         if (source == "current") {

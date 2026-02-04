@@ -1,8 +1,10 @@
+using System;
+using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace ilikefrogs101.MusicPlayer;
+namespace Lyrbd.Daemon;
 public static class FileHandler {
     public static string TitleOverride = default;
     public static string[] ArtistsOverride = default;

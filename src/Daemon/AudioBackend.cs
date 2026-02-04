@@ -1,4 +1,6 @@
-namespace ilikefrogs101.MusicPlayer;
+using System;
+
+namespace Lyrbd.Daemon;
 public abstract class AudioBackend {
     public string CurrentTrack { get; private set; }
     public event Action OnCurrentTrackEnd;

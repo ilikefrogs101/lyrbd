@@ -1,7 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ilikefrogs101.MusicPlayer;
+namespace Lyrbd.Daemon;
 public static class TrackManager {
     private static PersistantData _persistantData;
     private static Dictionary<string, Artist> _artists;

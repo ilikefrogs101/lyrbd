@@ -1,9 +1,11 @@
+using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using ilikefrogs101.CLI;
 using ilikefrogs101.Shutdown;
 
-namespace ilikefrogs101.MusicPlayer;
+namespace Lyrbd.Daemon;
 public static class Commands {
     [Command(Name = "quit", Description = "kill the background process")]
     public static void Quit(Arguments arguments) {
@@ -99,7 +101,7 @@ public static class Commands {
     public static void Query(Arguments arguments) {
         arguments.GetArgumentValue("type", out string type);
         arguments.GetArgumentValue("source", out string source);
-        MusicPlayer.Query.Enquire(type, source);
+        Daemon.Query.Enquire(type, source);
     }
     [Command(Name = "playlist", Description = "modify playlists")]
     [Argument(Name = "playlist", ArgumentType = ArgumentType.PositionalRequired)]
