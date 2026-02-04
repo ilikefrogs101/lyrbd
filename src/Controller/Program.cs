@@ -14,6 +14,6 @@ public static class Program {
         string rawCommand = Environment.CommandLine.Split(' ', 2)[1];
         client.Send(rawCommand);
 
-        Log.OutputResponse(client.Receive(8192));
+        Log.OutputResponse(client.Receive(4096));
     }
 }
