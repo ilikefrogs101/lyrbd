@@ -8,4 +8,8 @@
     <TargetName>lyrbdctl</TargetName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="ilikefrogs101.ICP" Version="1.0.0" />
+  </ItemGroup>
+
 </Project>
