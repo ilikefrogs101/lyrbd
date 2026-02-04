@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using ilikefrogs101.Logging;
 
 namespace Lyrbd.Daemon;
 public static class TrackManager {
@@ -14,10 +15,22 @@ public static class TrackManager {
         GenerateNonPersistantData();
     }
 
-    public static bool AddressExists(string address) {
-        string[] parts = address.Split(':', 2);
+    public static (string type, string id) SplitAddress(string address) {
+        string[] parts = address.Split(':');
+
+        if(parts.Length < 2) {
+            return (null, null);
+        }
+        
         string type = parts[0];
-        string id = parts[1];
+        string id = string.Join(' ', parts[1..]);
+
+        return (type, id);
+    }
+    public static bool ValidAddress(string address) {
+        if(address == default) return false;
+
+        (string type, string id) = SplitAddress(address);
 
         return type switch
         {
@@ -58,9 +71,8 @@ public static class TrackManager {
             _persistantData._playlists.Add(playlist, new(playlist, []));
         }
 
-        string type = toAdd.Split(':')[0];
-        string id = toAdd.Split(':')[1];
-        
+        (string type, string id) = SplitAddress(toAdd);
+
         switch (type) {
             case "track":
                 _persistantData._playlists[playlist].Tracks.Add(id);

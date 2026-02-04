@@ -8,6 +8,7 @@ public static class AudioHandler {
     
     private static bool _loop = false;
     private static bool _shuffle = false;
+    private static bool _playing = false;
 
     private static int _queueIndex = 0;
     private static List<string> _queue;
@@ -24,23 +25,29 @@ public static class AudioHandler {
         _initialised = true;
     }
 
-    
     public static void Pause() {
+        if(!_playing) return;
         _backend.Pause();
     }
     public static void Resume() {
+        if(!_playing) return;
         _backend.Resume();
     }
     public static void Restart() {
+        if(!_playing) return;
         _backend.Restart();
     }
     public static void Stop() {
+        if(!_playing) return;
         _backend.Stop();
+        _playing = false;
     }
     public static void Next() {
+        if(!_playing) return;
         _pickNextTrack();
     }
     public static void Previous() {
+        if(!_playing) return;
         _queueIndex -= 2;
         if(_queueIndex < 0) {
             _queueIndex = _queue.Count - 1;
@@ -48,16 +55,23 @@ public static class AudioHandler {
         _pickNextTrack();
     }
     public static void SkipQueue(int position) {
+        if(!_playing) return;
         _queueIndex = position;
         _pickNextTrack();
     }
     public static void Forward(ulong seconds) {
+        if(!_playing) return;
         _backend.Forward(seconds);
     }
     public static void Backward(ulong seconds) {
+        if(!_playing) return;
         _backend.Backward(seconds);
     }
     public static void SetShuffle(bool shuffle) {
+        if(!_playing) {
+            _shuffle = shuffle;
+            return;
+        }
         int currentTrackIndex = _queueIndex - 1;
         if(currentTrackIndex < 0) {
             currentTrackIndex = _queue.Count;
@@ -79,10 +93,11 @@ public static class AudioHandler {
         SetLoop(!_loop);
     }
     public static void SetVolume(float volumePercent) {
+        _initialise();
         _backend.SetVolume(volumePercent / 100);
     }
     public static void Play(string address) {
-        if(!TrackManager.AddressExists(address)) {
+        if(!TrackManager.ValidAddress(address)) {
             Log.ErrorMessage($"Cannot play {address}, it does not exist");
             return;
         }
@@ -93,12 +108,13 @@ public static class AudioHandler {
 
         _buildQueueFromSource();
         _pickNextTrack();
+
+        _playing = true;
     }
 
     private static void _buildQueueFromSource() {
         _queueIndex = 0;
-        string type = _currentAddress.Split(':')[0];
-        string id = _currentAddress.Split(':')[1];
+        (string type, string id) = TrackManager.SplitAddress(_currentAddress);
 
         switch(type) {
             case "track":
@@ -142,21 +158,27 @@ public static class AudioHandler {
     }
 
     public static string GetAddress() {
+        if(_playing == false) return "Not Playing";
         return _currentAddress;
     }
     public static string GetCurrentTrackId() {
+        if(_playing == false) return "Not Playing";
         return _backend.CurrentTrack;
     }
     public static ulong GetProgress() {
+        if(_playing == false) return 0;
         return _backend.Progress();
     }
     public static ulong GetLength() {
+        if(_playing == false) return 0;
         return _backend.Length();
     }
     public static string[] GetQueue() {
+        if(_playing == false) return [];
         return [.. _queue];
     }
     public static int GetQueuePosition() {
+        if(_playing == false) return 0;
         return _queueIndex - 1;
     }
     public static bool GetShuffleState() {
@@ -166,6 +188,7 @@ public static class AudioHandler {
         return _loop;
     }
     public static float GetVolume() {
+        if(!_initialised) return 100;
         return _backend.Volume() * 100;
     }
     

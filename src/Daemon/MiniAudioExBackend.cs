@@ -6,7 +6,7 @@ using MiniAudioEx.Core.StandardAPI;
 
 namespace Lyrbd.Daemon;
 public class MiniAudioExBackend : AudioBackend {
-    private const int SAMPLE_RATE = 44100;
+    private const int SAMPLE_RATE = 96000;
     private const int CHANNELS = 2;
 
     private bool _paused = false;
