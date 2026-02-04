@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <!-- Treat warnings as errors globally -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- But ignore specific warnings -->
+    <NoWarn>
+      $(NoWarn);
+	IDE0090;
+	IDE0290;
+      	IDE1006;
+    </NoWarn>
+  </PropertyGroup>
+</Project>

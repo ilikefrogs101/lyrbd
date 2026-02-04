@@ -40,7 +40,7 @@ public static class TrackManager {
 
     public static void AddToPlaylist(string playlist, string toAdd) {
         if(!_persistantData._playlists.ContainsKey(playlist)) {
-            _persistantData._playlists.Add(playlist, new(playlist, new()));
+            _persistantData._playlists.Add(playlist, new(playlist, []));
         }
 
         string type = toAdd.Split(':')[0];
