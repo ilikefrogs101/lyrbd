@@ -76,7 +76,9 @@ public static class Commands {
         arguments.GetArgumentValue("tracknumberoverride", out FileHandler.TrackNumberOverride);
 
         arguments.GetArgumentValue("artistsoverride", out string artists);
-        FileHandler.ArtistsOverride = artists.Split(',');
+        if(artists != default) {
+            FileHandler.ArtistsOverride = artists.Split(',');
+        }
 
         FileHandler.AutoSpace = arguments.FlagTrigged("autospace");
         FileHandler.AutoCapitalise = arguments.FlagTrigged("autocapitalise");
