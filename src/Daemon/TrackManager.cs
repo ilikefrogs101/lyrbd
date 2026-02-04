@@ -14,6 +14,20 @@ public static class TrackManager {
         GenerateNonPersistantData();
     }
 
+    public static bool AddressExists(string address) {
+        string[] parts = address.Split(':', 2);
+        string type = parts[0];
+        string id = parts[1];
+
+        return type switch
+        {
+            "track" => _persistantData._tracks.ContainsKey(id),
+            "playlist" => _persistantData._playlists.ContainsKey(id),
+            "artist" => _artists.ContainsKey(id),
+            "album" => _albums.ContainsKey(id),
+            _ => false,
+        };
+    }
     public static Track GetTrack(string id) {
         return _persistantData._tracks[id];
     }

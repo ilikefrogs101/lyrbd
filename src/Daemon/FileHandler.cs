@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using ilikefrogs101.Logging;
 
 namespace Lyrbd.Daemon;
 public static class FileHandler {
@@ -29,6 +30,11 @@ public static class FileHandler {
     }
 
     public static void Import(string path) {
+        if(!File.Exists(path)) {
+            Log.ErrorMessage($"Cannot import \"{path}\", that file does not exists");
+            return;            
+        }
+
         FileAttributes pathAttributes = File.GetAttributes(path);
 
         if(pathAttributes.HasFlag(FileAttributes.Directory)) {

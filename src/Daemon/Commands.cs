@@ -41,10 +41,10 @@ public static class Commands {
         AudioHandler.SkipQueue(position);
     }
     [Command(Name = "play", Description = "play a track, playlist, album, or artist")]
-    [Argument(Name = "id", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "address", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Play(Arguments arguments) {
-        arguments.GetArgumentValue("id", out string id);
-        AudioHandler.Play(id);
+        arguments.GetArgumentValue("address", out string address);
+        AudioHandler.Play(address);
     }
     [Command(Name = "forward", Description = "skip forwards in the current track")]
     [Argument(Name = "seconds", ArgumentType = ArgumentType.PositionalRequired)]
@@ -110,14 +110,14 @@ public static class Commands {
     public static void Playlist(Arguments arguments) {
         arguments.GetArgumentValue("playlist", out string playlist);
         arguments.GetArgumentValue("mode", out string mode);
-        arguments.GetArgumentValue("id", out string id);
+        arguments.GetArgumentValue("address", out string address);
 
         switch (mode) {
             case "add":
-                TrackManager.AddToPlaylist(playlist, id);
+                TrackManager.AddToPlaylist(playlist, address);
                 break;
             case "remove":
-                TrackManager.RemoveFromPlaylist(playlist, id);
+                TrackManager.RemoveFromPlaylist(playlist, address);
                 break;
             case "delete":
                 TrackManager.DeletePlaylist(playlist);
@@ -125,9 +125,12 @@ public static class Commands {
         }
     }
     [Command(Name = "shuffle", Description = "change the shuffle setting")]
-    [Argument(Name = "on/off", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "on/off/toggle", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Shuffle(Arguments arguments) {
-        arguments.GetArgumentValue("on/off", out string state);
+        arguments.GetArgumentValue("on/off/toggle", out string state);
+        if(state == "toggle") {
+            AudioHandler.ToggleShuffle();
+        }
         if(state == "on") {
             AudioHandler.SetShuffle(true);
         }
@@ -136,9 +139,12 @@ public static class Commands {
         }
     }
     [Command(Name = "loop", Description = "change the loop setting")]
-    [Argument(Name = "on/off", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "on/off/toggle", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Loop(Arguments arguments) {
-        arguments.GetArgumentValue("on/off", out string state);
+        arguments.GetArgumentValue("on/off/toggle", out string state);
+        if(state == "toggle") {
+            AudioHandler.ToggleLoop();
+        }
         if(state == "on") {
             AudioHandler.SetLoop(true);
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ilikefrogs101.Logging;
 
 namespace Lyrbd.Daemon;
 public static class AudioHandler {
@@ -11,7 +12,7 @@ public static class AudioHandler {
     private static int _queueIndex = 0;
     private static List<string> _queue;
 
-    private static string _playSource;
+    private static string _currentAddress;
 
     private static bool _initialised = false;
     private static void _initialise() {
@@ -68,16 +69,27 @@ public static class AudioHandler {
         _buildQueueFromSource();
         _queueIndex = _queue.IndexOf(currentTrackID) + 1;
     }
+    public static void ToggleShuffle() {
+        SetShuffle(!_shuffle);
+    }
     public static void SetLoop(bool loop) {
         _loop = loop;
+    }
+    public static void ToggleLoop() {
+        SetLoop(!_loop);
     }
     public static void SetVolume(float volumePercent) {
         _backend.SetVolume(volumePercent / 100);
     }
-    public static void Play(string id) {
-        _initialise();
+    public static void Play(string address) {
+        if(!TrackManager.AddressExists(address)) {
+            Log.ErrorMessage($"Cannot play {address}, it does not exist");
+            return;
+        }
 
-        _playSource = id;
+        _initialise();
+        
+        _currentAddress = address;
 
         _buildQueueFromSource();
         _pickNextTrack();
@@ -85,12 +97,12 @@ public static class AudioHandler {
 
     private static void _buildQueueFromSource() {
         _queueIndex = 0;
-        string type = _playSource.Split(':')[0];
-        string id = _playSource.Split(':')[1];
+        string type = _currentAddress.Split(':')[0];
+        string id = _currentAddress.Split(':')[1];
 
         switch(type) {
             case "track":
-                _queue = [_playSource.Split(':')[1]];
+                _queue = [_currentAddress.Split(':')[1]];
                 break;
             case "playlist":
                 _queue = [.. TrackManager.GetPlaylist(id).Tracks];
@@ -129,8 +141,8 @@ public static class AudioHandler {
         _pickNextTrack();
     }
 
-    public static string GetSource() {
-        return _playSource;
+    public static string GetAddress() {
+        return _currentAddress;
     }
     public static string GetCurrentTrackId() {
         return _backend.CurrentTrack;

@@ -1,6 +1,7 @@
 using System.IO;
 using System.Threading;
 using ilikefrogs101.Shutdown;
+using ilikefrogs101.Logging;
 using MiniAudioEx.Core.StandardAPI;
 
 namespace Lyrbd.Daemon;
@@ -19,7 +20,14 @@ public class MiniAudioExBackend : AudioBackend {
     private Thread _updateThread;
 
     protected override void _playInternal() {
-        _clip = new AudioClip(Path.Combine(FileHandler.TrackStoragePath(), TrackManager.GetTrackStorageID(CurrentTrack)));
+        string path = Path.Combine(FileHandler.TrackStoragePath(), TrackManager.GetTrackStorageID(CurrentTrack));
+
+        if(!File.Exists(path)) {
+            Log.ErrorMessage($"Cannot load {path}, file not found");
+            return;
+        }
+
+        _clip = new AudioClip(path);
         _source.Play(_clip);
 
         if(!_subscribedToCallback) {

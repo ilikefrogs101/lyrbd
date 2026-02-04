@@ -13,8 +13,8 @@ public static class Query {
             case "current":
                 _currentTrack();
                 break;
-            case "source":
-                _source();
+            case "address":
+                _address();
                 break;
             case "queue":
                 _queue();
@@ -131,8 +131,8 @@ public static class Query {
     private static void _queuePosition() {
         Log.OutputResponse(AudioHandler.GetQueuePosition().ToString());
     }
-    private static void _source() {
-        Log.OutputResponse(AudioHandler.GetSource());
+    private static void _address() {
+        Log.OutputResponse(AudioHandler.GetAddress());
     }
     private static void _currentTrackProgress() {
         Log.OutputResponse(AudioHandler.GetProgress().ToString());

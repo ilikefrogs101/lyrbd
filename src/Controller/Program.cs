@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using ilikefrogs101.ICP;
+using ilikefrogs101.IPC;
 using ilikefrogs101.Logging;
 
 namespace Lyrbd.Controller;
@@ -8,7 +8,7 @@ public static class Program {
     public static void Main() {
         Log.OnResponse += Console.WriteLine;
 
-        IcpClient client = new IcpClient();
+        IpcClient client = new IpcClient();
         client.Connect("/tmp/lyrbd.sock");
         
         string rawCommand = Environment.CommandLine.Split(' ', 2)[1];
