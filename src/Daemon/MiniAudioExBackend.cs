@@ -35,15 +35,19 @@ public class MiniAudioExBackend : AudioBackend {
             _subscribedToCallback = true;
         }
     }
-    public override void Pause() {
-        _pauseFrame = _source.Cursor;
-        _source.Stop();
-        _paused = true;
+    public override void Pause(bool paused) {
+        _paused = paused;
+        if(_paused) {
+            _pauseFrame = _source.Cursor;
+            _source.Stop();
+        }
+        else {
+            _source.Play(_clip);
+            _source.Cursor = _pauseFrame;
+        }
     }
-    public override void Resume() {
-        _source.Play(_clip);
-        _source.Cursor = _pauseFrame;
-        _paused = false;
+    public override void TogglePause() {
+        Pause(!_paused);
     }
     public override void Restart() {
         _source.Cursor = 0;

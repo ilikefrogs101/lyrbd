@@ -11,8 +11,8 @@ public abstract class AudioBackend {
 
     protected abstract void _playInternal();
     
-    public abstract void Pause();
-    public abstract void Resume();
+    public abstract void Pause(bool paused);
+    public abstract void TogglePause();
     public abstract void Restart();
     public abstract void Stop();
     public abstract void Forward(ulong seconds);

@@ -25,13 +25,13 @@ public static class AudioHandler {
         _initialised = true;
     }
 
-    public static void Pause() {
+    public static void Pause(bool paused) {
         if(!_playing) return;
-        _backend.Pause();
+        _backend.Pause(paused);
     }
-    public static void Resume() {
+    public static void TogglePause() {
         if(!_playing) return;
-        _backend.Resume();
+        _backend.TogglePause();
     }
     public static void Restart() {
         if(!_playing) return;

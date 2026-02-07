@@ -9,15 +9,6 @@ public static class Commands {
     public static void Quit(Arguments arguments) {
         ShutdownHandler.RequestShutdown();
     }
-
-    [Command(Name = "pause", Description = "pause the current track")]
-    public static void Pause(Arguments arguments) {
-        AudioHandler.Pause();
-    }
-    [Command(Name = "resume", Description = "resume playing the current track")]
-    public static void Resume(Arguments arguments) {
-        AudioHandler.Resume();
-    }
     [Command(Name = "restart", Description = "restart the current track")]
     public static void Restart(Arguments arguments) {
         AudioHandler.Restart();
@@ -33,6 +24,20 @@ public static class Commands {
     [Command(Name = "previous", Description = "revert to the previous track in the queue")]
     public static void Previous(Arguments arguments) {
         AudioHandler.Previous();
+    }
+    [Command(Name = "pause", Description = "pause the current track")]
+    [Argument(Name = "on/off/toggle", ArgumentType = ArgumentType.PositionalRequired)]
+    public static void Pause(Arguments arguments) {
+        arguments.GetArgumentValue("on/off/toggle", out string state);
+        if(state == "toggle") {
+            AudioHandler.TogglePause();
+        }
+        if(state == "on") {
+            AudioHandler.Pause(true);
+        }
+        if(state == "off") {
+            AudioHandler.Pause(false);
+        }        
     }
     [Command(Name = "skipqueue", Description = "skip to a position in the current queue")]
     [Argument(Name = "position", ArgumentType = ArgumentType.PositionalRequired)]
