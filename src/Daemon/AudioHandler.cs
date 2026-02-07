@@ -56,6 +56,7 @@ public static class AudioHandler {
     }
     public static void SkipQueue(int position) {
         if(!_playing) return;
+        if(_queue.Count >= position) return;
         _queueIndex = position;
         _pickNextTrack();
     }
