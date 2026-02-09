@@ -6,18 +6,19 @@ using MiniAudioEx.Core.StandardAPI;
 
 namespace Lyrbd.Daemon;
 public class MiniAudioExBackend : AudioBackend {
-    private const int SAMPLE_RATE = 96000;
+    private const int SAMPLE_RATE = 48000;
     private const int CHANNELS = 2;
 
     private bool _paused = false;
     private ulong _pauseFrame = 0;
 
+    private AudioApp _app;
     private AudioSource _source;
     private AudioClip _clip;
 
     private bool _subscribedToCallback;
-    private bool _isRunning;
-    private Thread _updateThread;
+    private bool _initialised;
+    private Thread _audioThread;
 
     protected override void _playInternal() {
         string path = Path.Combine(FileHandler.TrackStoragePath(), TrackManager.GetTrackStorageID(CurrentTrack));
@@ -86,33 +87,32 @@ public class MiniAudioExBackend : AudioBackend {
         return _source.Volume;
     }
     public MiniAudioExBackend() {
-        AudioContext.Initialize(SAMPLE_RATE, CHANNELS);
-        _source = new AudioSource();
-        _isRunning = true;
+        _app = new AudioApp(SAMPLE_RATE, CHANNELS);
+        _app.Loaded += _loaded;
 
-        _updateThread = new Thread(UpdateLoop)
+        _audioThread = new Thread(() =>
+        {
+            _app.Run();
+        })
         {
             IsBackground = true
         };
-        _updateThread.Start();
 
-        ShutdownHandler.OnShutdownCalled += Dispose;
+        _audioThread.Start();
+
+
+        ShutdownHandler.OnShutdownCalled += _dispose;
     }
-
-    private void UpdateLoop()
-    {
-        while (_isRunning)
-        {
-            AudioContext.Update();
-            Thread.Sleep(10);
-        }
+    private void _loaded() {
+        _source = new AudioSource();
+        _initialised = true;
     }
-    public void Dispose()
+    private void _dispose()
     {
-        if (!_isRunning) return;
+        if (!_initialised) return;
 
-        _isRunning = false;
-        _updateThread.Join();
+        _initialised = false;
+        _audioThread.Join();
         AudioContext.Deinitialize();
     }
 }

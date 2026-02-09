@@ -8,7 +8,7 @@ public static class AudioHandler {
     
     private static bool _loop = false;
     private static bool _shuffle = false;
-    private static bool _playing = false;
+    private static bool _hasTrack = false;
 
     private static int _queueIndex = 0;
     private static List<string> _queue;
@@ -16,7 +16,7 @@ public static class AudioHandler {
     private static string _currentAddress;
 
     private static bool _initialised = false;
-    private static void _initialise() {
+    public static void Initialise() {
         if(_initialised) return;
 
         _backend = new MiniAudioExBackend();
@@ -26,28 +26,28 @@ public static class AudioHandler {
     }
 
     public static void Pause(bool paused) {
-        if(!_playing) return;
+        if(!_hasTrack) return;
         _backend.Pause(paused);
     }
     public static void TogglePause() {
-        if(!_playing) return;
+        if(!_hasTrack) return;
         _backend.TogglePause();
     }
     public static void Restart() {
-        if(!_playing) return;
+        if(!_hasTrack) return;
         _backend.Restart();
     }
     public static void Stop() {
-        if(!_playing) return;
+        if(!_hasTrack) return;
         _backend.Stop();
-        _playing = false;
+        _hasTrack = false;
     }
     public static void Next() {
-        if(!_playing) return;
+        if(!_hasTrack) return;
         _pickNextTrack();
     }
     public static void Previous() {
-        if(!_playing) return;
+        if(!_hasTrack) return;
         _queueIndex -= 2;
         if(_queueIndex < 0) {
             _queueIndex = _queue.Count - 1;
@@ -55,21 +55,21 @@ public static class AudioHandler {
         _pickNextTrack();
     }
     public static void SkipQueue(int position) {
-        if(!_playing) return;
+        if(!_hasTrack) return;
         if(_queue.Count >= position || position < 0) return;
         _queueIndex = position;
         _pickNextTrack();
     }
     public static void Forward(ulong seconds) {
-        if(!_playing) return;
+        if(!_hasTrack) return;
         _backend.Forward(seconds);
     }
     public static void Backward(ulong seconds) {
-        if(!_playing) return;
+        if(!_hasTrack) return;
         _backend.Backward(seconds);
     }
     public static void SetShuffle(bool shuffle) {
-        if(!_playing) {
+        if(!_hasTrack) {
             _shuffle = shuffle;
             return;
         }
@@ -94,7 +94,6 @@ public static class AudioHandler {
         SetLoop(!_loop);
     }
     public static void SetVolume(float volumePercent) {
-        _initialise();
         _backend.SetVolume(volumePercent / 100);
     }
     public static void Play(string address) {
@@ -103,14 +102,12 @@ public static class AudioHandler {
             return;
         }
 
-        _initialise();
-        
         _currentAddress = address;
 
         _buildQueueFromSource();
         _pickNextTrack();
 
-        _playing = true;
+        _hasTrack = true;
     }
 
     private static void _buildQueueFromSource() {
@@ -159,27 +156,27 @@ public static class AudioHandler {
     }
 
     public static string GetAddress() {
-        if(_playing == false) return "Not Playing";
+        if(_hasTrack == false) return "Not Playing";
         return _currentAddress;
     }
     public static string GetCurrentTrackId() {
-        if(_playing == false) return "Not Playing";
+        if(_hasTrack == false) return "Not Playing";
         return _backend.CurrentTrack;
     }
     public static ulong GetProgress() {
-        if(_playing == false) return 0;
+        if(_hasTrack == false) return 0;
         return _backend.Progress();
     }
     public static ulong GetLength() {
-        if(_playing == false) return 0;
+        if(_hasTrack == false) return 0;
         return _backend.Length();
     }
     public static string[] GetQueue() {
-        if(_playing == false) return [];
+        if(_hasTrack == false) return [];
         return [.. _queue];
     }
     public static int GetQueuePosition() {
-        if(_playing == false) return 0;
+        if(_hasTrack == false) return 0;
         return _queueIndex - 1;
     }
     public static bool GetShuffleState() {

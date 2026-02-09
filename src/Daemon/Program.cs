@@ -11,6 +11,7 @@ public static class Program {
 
         CommandRegistry.LoadCommands(typeof(Commands));
         TrackManager.Initialise();
+        AudioHandler.Initialise();
 
         IpcServer server = new IpcServer();
         Log.OnResponse += server.Broadcast;
