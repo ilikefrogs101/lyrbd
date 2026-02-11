@@ -15,7 +15,6 @@ public static class AudioHandler {
 
     private static string _currentAddress;
 
-    private static bool _initialised = false;
     public static void Initialise() {
         if(_backend != null) return;
 
