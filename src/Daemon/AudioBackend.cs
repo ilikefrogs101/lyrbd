@@ -18,6 +18,7 @@ public abstract class AudioBackend {
     public abstract void Forward(ulong seconds);
     public abstract void Backward(ulong seconds);
     public abstract void SetVolume(float volume);
+    public abstract bool Paused();
     public abstract ulong Progress();
     public abstract ulong Length();
     public abstract float Volume();

@@ -75,6 +75,9 @@ public class MiniAudioExBackend : AudioBackend {
     public override void SetVolume(float volume) {
         _source.Volume = volume;
     }
+    public override bool Paused() {
+        return _paused;
+    }
     public override ulong Progress() {
         if(_paused) return _pauseFrame / SAMPLE_RATE;
 

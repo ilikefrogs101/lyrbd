@@ -28,6 +28,9 @@ public static class Query {
             case "length":
                 _currentTracklength();
                 break;
+            case "paused":
+                _paused();
+                break;
             case "shuffle":
                 _shuffle();
                 break;
@@ -139,6 +142,9 @@ public static class Query {
     }
     private static void _currentTracklength() {
         Log.OutputResponse(AudioHandler.GetLength().ToString());
+    }
+    private static void _paused() {
+        Log.OutputResponse(AudioHandler.GetPauseState() ? "on" : "off");
     }
     private static void _shuffle() {
         string state = AudioHandler.GetShuffleState() ? "on" : "off";

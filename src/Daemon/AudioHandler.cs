@@ -17,37 +17,35 @@ public static class AudioHandler {
 
     private static bool _initialised = false;
     public static void Initialise() {
-        if(_initialised) return;
+        if(_backend != null) return;
 
         _backend = new MiniAudioExBackend();
         _backend.OnCurrentTrackEnd += _finished;
-
-        _initialised = true;
     }
 
     public static void Pause(bool paused) {
-        if(!_hasTrack) return;
+        if(_backend == null) return;
         _backend.Pause(paused);
     }
     public static void TogglePause() {
-        if(!_hasTrack) return;
+        if(_backend == null) return;
         _backend.TogglePause();
     }
     public static void Restart() {
-        if(!_hasTrack) return;
+        if(_backend == null) return;
         _backend.Restart();
     }
     public static void Stop() {
-        if(!_hasTrack) return;
+        if(_backend == null) return;
         _backend.Stop();
         _hasTrack = false;
     }
     public static void Next() {
-        if(!_hasTrack) return;
+        if(_backend == null) return;
         _pickNextTrack();
     }
     public static void Previous() {
-        if(!_hasTrack) return;
+        if(_backend == null) return;
         _queueIndex -= 2;
         if(_queueIndex < 0) {
             _queueIndex = _queue.Count - 1;
@@ -61,11 +59,11 @@ public static class AudioHandler {
         _pickNextTrack();
     }
     public static void Forward(ulong seconds) {
-        if(!_hasTrack) return;
+        if(_backend == null) return;
         _backend.Forward(seconds);
     }
     public static void Backward(ulong seconds) {
-        if(!_hasTrack) return;
+        if(_backend == null) return;
         _backend.Backward(seconds);
     }
     public static void SetShuffle(bool shuffle) {
@@ -94,6 +92,7 @@ public static class AudioHandler {
         SetLoop(!_loop);
     }
     public static void SetVolume(float volumePercent) {
+        if(_backend == null) return;
         _backend.SetVolume(volumePercent / 100);
     }
     public static void Play(string address) {
@@ -179,6 +178,10 @@ public static class AudioHandler {
         if(_hasTrack == false) return 0;
         return _queueIndex - 1;
     }
+    public static bool GetPauseState() {
+        if(_backend == null) return true;
+        return _backend.Paused();
+    }
     public static bool GetShuffleState() {
         return _shuffle;
     }
@@ -186,10 +189,10 @@ public static class AudioHandler {
         return _loop;
     }
     public static float GetVolume() {
-        if(!_initialised) return 100;
+        if(_backend == null) return 100;
         return _backend.Volume() * 100;
     }
-    
+
     private static void Shuffle<T>(this IList<T> list)
     {
         int n = list.Count;
