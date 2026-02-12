@@ -111,7 +111,7 @@ public static class Commands {
     [Command(Name = "playlist", Description = "modify playlists")]
     [Argument(Name = "playlist", ArgumentType = ArgumentType.PositionalRequired)]
     [Argument(Name = "mode", ArgumentType = ArgumentType.PositionalRequired)]
-    [Argument(Name = "id", ArgumentType = ArgumentType.PositionalOptional)]
+    [Argument(Name = "address", ArgumentType = ArgumentType.PositionalOptional)]
     public static void Playlist(Arguments arguments) {
         arguments.GetArgumentValue("playlist", out string playlist);
         arguments.GetArgumentValue("mode", out string mode);

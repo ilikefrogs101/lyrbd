@@ -43,6 +43,9 @@ public static class Query {
             case "tracks":
                 _lookupTracks(source);
                 break;
+            case "playlists":
+                _lookupPlaylists();
+                break;
             case "artists":
                 _lookupArtists(source);
                 break;
@@ -72,6 +75,9 @@ public static class Query {
                 Log.OutputResponse(string.Join('\n', tracks));
                 break;
         }
+    }
+    private static void _lookupPlaylists() {
+        Log.OutputResponse(string.Join('\n', TrackManager.GetPlaylistList()));
     }
     private static void _lookupArtists(string source) {
         if(source == default) {
