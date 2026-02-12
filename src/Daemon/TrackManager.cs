@@ -130,12 +130,15 @@ public static class TrackManager {
         }
 
         for(int i = 0; i < toDelete.Length; ++i) {
-            _persistantData._tracks.Remove(toDelete[i]);
+            string trackID = toDelete[i];
+            _persistantData._tracks.Remove(trackID);
+            FileHandler.DeleteTrack(trackID);
             for(int j = 0; j < _persistantData._playlists.Count; ++j) {
-                _persistantData._playlists[toDelete[i]].Tracks.Remove(toDelete[i]);
+                _persistantData._playlists.ElementAt(j).Value.Tracks.Remove(trackID);
             }
         }
         
+        UpdatePersistantData();
         GenerateNonPersistantData();
     }
 

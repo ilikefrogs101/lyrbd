@@ -147,6 +147,7 @@ public static class AudioHandler {
         ++_queueIndex;
     }
     private static void _play(string track) {
+        if(_backend == null) return;
         _backend.Play(track);
     }
     private static void _finished() {

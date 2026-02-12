@@ -91,9 +91,6 @@ public static class Commands {
         arguments.GetArgumentValue("path", out string path);
         FileHandler.Import(path);
     }
-    public static void Export(Arguments arguments) {
-
-    }
     [Command(Name = "delete", Description = "delete a track")]
     [Argument(Name = "address", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Delete(Arguments arguments) {
