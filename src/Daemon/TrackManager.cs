@@ -106,14 +106,36 @@ public static class TrackManager {
     }
     public static void DeletePlaylist(string playlist) {
         _persistantData._playlists.Remove(playlist);
+        UpdatePersistantData();
     }
 
     public static void AddTrack(Track track) {
         _persistantData._tracks[GetTrackID(track)] = track;
         GenerateNonPersistantData();
     }
-    public static void DeleteTrack(string id) {
-        _persistantData._tracks.Remove(id);
+    public static void Delete(string address) {
+        (string type, string id) = SplitAddress(address);
+        string[] toDelete = [];
+
+        switch(type) {
+            case "track":
+                toDelete = [id];
+                break;
+            case "artist":
+                toDelete = [.. GetArtist(id).Tracks];
+                break;
+            case "album":
+                toDelete = [.. GetAlbum(id).Tracks];
+                break;
+        }
+
+        for(int i = 0; i < toDelete.Length; ++i) {
+            _persistantData._tracks.Remove(toDelete[i]);
+            for(int j = 0; j < _persistantData._playlists.Count; ++j) {
+                _persistantData._playlists[toDelete[i]].Tracks.Remove(toDelete[i]);
+            }
+        }
+        
         GenerateNonPersistantData();
     }
 

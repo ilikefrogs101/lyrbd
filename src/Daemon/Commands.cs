@@ -95,10 +95,10 @@ public static class Commands {
 
     }
     [Command(Name = "delete", Description = "delete a track")]
-    [Argument(Name = "id", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "address", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Delete(Arguments arguments) {
-        arguments.GetArgumentValue("id", out string id);
-        TrackManager.DeleteTrack(id);
+        arguments.GetArgumentValue("addresss", out string address);
+        TrackManager.Delete(address);
     }
     [Command(Name = "query", Description = "fetch information from the music player")]
     [Argument(Name = "type", ArgumentType = ArgumentType.PositionalRequired)]
