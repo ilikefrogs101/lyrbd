@@ -1,166 +1,118 @@
-using System.ComponentModel;
+using System.Data.Common;
 using System.Text;
 using ilikefrogs101.Logging;
 
 namespace Lyrbd.Daemon;
 public static class Query {
-    public static void Enquire(string type, string source) {
-        if (source == "current") {
-            source = AudioHandler.GetCurrentTrackId();
+    public static void Enquire(string type, string address) {
+        string output = default;
+
+        if (address == "current") {
+            address = QueueHandler.TrackId();
         }
 
         switch (type) {
             case "current":
-                _currentTrack();
+                output = QueueHandler.TrackId();
                 break;
             case "address":
-                _address();
-                break;
-            case "queue":
-                _queue();
+                output = QueueHandler.Address();
                 break;
             case "queueposition":
-                _queuePosition();
+                output = QueueHandler.QueuePosition().ToString();
+                break;
+            case "queue":
+                output = _lookupQueue();
                 break;
             case "progress":
-                _currentTrackProgress();
+                output = AudioHandler.TrackProgress().ToString();
                 break;
             case "length":
-                _currentTracklength();
+                output = AudioHandler.TrackLength().ToString();
                 break;
             case "pause":
-                _pause();
-                break;
-            case "shuffle":
-                _shuffle();
+                output = AudioHandler.IsPaused().ToString();
                 break;
             case "loop":
-                _loop();
+                output = QueueHandler.IsLooped().ToString();
+                break;
+            case "shuffle":
+                output = QueueHandler.IsShuffled().ToString();
                 break;
             case "volume":
-                _volume();
+                output = (AudioHandler.Volume() * 100).ToString();
                 break;
             case "tracks":
-                _lookupTracks(source);
+                output = _lookupTracks(address);
                 break;
             case "playlists":
-                _lookupPlaylists();
+                output = _lookupPlaylists();
                 break;
             case "artists":
-                _lookupArtists(source);
+                output = _lookupArtists(address);
                 break;
             case "albums":
-                _lookupAlbums(source);
+                output = _lookupAlbums(address);
                 break;
         }
+
+        Log.OutputResponse(output);
     }
 
-    private static void _lookupTracks(string source) {
-        if(source == default) {
-            string[] tracks = TrackManager.GetTrackList();
-            Log.OutputResponse(string.Join('\n', tracks));
-            return;
-        }
-
-        string idType = source.Split(':')[0];
-        string id = source.Split(':')[1];
-
-        switch (idType) {
-            case "artist":
-                string[] tracks = [.. TrackManager.GetArtist(id).Tracks];
-                Log.OutputResponse(string.Join('\n', tracks));
-                break;
-            case "album":
-                tracks = [.. TrackManager.GetAlbum(id).Tracks];
-                Log.OutputResponse(string.Join('\n', tracks));
-                break;
-        }
-    }
-    private static void _lookupPlaylists() {
-        Log.OutputResponse(string.Join('\n', TrackManager.GetPlaylistList()));
-    }
-    private static void _lookupArtists(string source) {
-        if(source == default) {
-            string[] artists = TrackManager.GetArtistList();
-            Log.OutputResponse(string.Join('\n', artists));
-            return;
-        }
-
-        string idType = source.Split(':')[0];
-        string id = source.Split(':')[1];
-
-        switch (idType) {
-            case "track":
-                string[] artists = [.. TrackManager.GetTrack(id).Artists];
-                Log.OutputResponse(string.Join('\n', artists));
-                break;
-            case "album":
-                artists = [.. TrackManager.GetAlbum(id).Artists];
-                Log.OutputResponse(string.Join('\n', artists));
-                break;
-        }
-    }
-    private static void _lookupAlbums(string source) {
-        if(source == default) {
-            string[] albums = TrackManager.GetAlbumList();
-            Log.OutputResponse(string.Join('\n', albums));
-            return;
-        }
-
-        string idType = source.Split(':')[0];
-        string id = source.Split(':')[1];
-
-        switch (idType) {
-            case "track":
-                string album = TrackManager.GetTrack(id).Album;
-                Log.OutputResponse(album);
-                break;
-            case "artist":
-                string[] albums = [.. TrackManager.GetArtist(id).Albums];
-                Log.OutputResponse(string.Join('\n', albums));
-                break;
-        }
-    }
-    private static void _currentTrack() {
-        Log.OutputResponse(AudioHandler.GetCurrentTrackId());
-    }
-    private static void _queue() {
+    private static string _lookupQueue() {
         StringBuilder output = new();
 
-        string[] queue = AudioHandler.GetQueue();
+        string[] queue = QueueHandler.Queue();
         for(int i = 0; i < queue.Length; ++i) {
             output.Append(i);
             output.Append(". ");
-            output.Append(TrackManager.GetTrack(queue[i]).Title);
+            output.Append(queue[i]);
             output.Append('\n');
         }
 
-        Log.OutputResponse(output.ToString());
+        return output.ToString();
     }
-    private static void _queuePosition() {
-        Log.OutputResponse(AudioHandler.GetQueuePosition().ToString());
+    private static string _lookupTracks(string address) {
+        if(address == default)
+            return string.Join('\n', LibraryManager.Tracks());
+        
+        return string.Join('\n', LibraryManager.TracksFromAddress(address));
     }
-    private static void _address() {
-        Log.OutputResponse(AudioHandler.GetAddress());
+    private static string _lookupPlaylists() {
+        return string.Join('\n', LibraryManager.Playlists());
     }
-    private static void _currentTrackProgress() {
-        Log.OutputResponse(AudioHandler.GetProgress().ToString());
+    private static string _lookupArtists(string address) {
+        if(address == default) {
+            string[] artists = LibraryManager.Artists();
+            return string.Join('\n', artists);
+        }
+
+        (string type, string id) = LibraryManager.SplitAddress(address);
+        switch (type) {
+            case "track":
+                return LibraryManager.Track(id).Album;
+            case "artist":
+                string[] albums = [.. LibraryManager.Artist(id).Albums];
+                return string.Join('\n', albums);
+        }
+
+        return null;
     }
-    private static void _currentTracklength() {
-        Log.OutputResponse(AudioHandler.GetLength().ToString());
-    }
-    private static void _pause() {
-        Log.OutputResponse(AudioHandler.GetPauseState() ? "on" : "off");
-    }
-    private static void _shuffle() {
-        string state = AudioHandler.GetShuffleState() ? "on" : "off";
-        Log.OutputResponse(state);
-    }
-    private static void _loop() {
-        string state = AudioHandler.GetLoopState() ? "on" : "off";
-        Log.OutputResponse(state);
-    }
-    private static void _volume() {
-        Log.OutputResponse(AudioHandler.GetVolume().ToString() + "%");
+    private static string _lookupAlbums(string address) {
+        if(address == default) {
+            string[] albums = LibraryManager.Albums();
+            return string.Join('\n', albums);
+        }
+
+        (string type, string id) = LibraryManager.SplitAddress(address);
+        switch (type) {
+            case "track":
+                return string.Join('\n', LibraryManager.Track(id).Artists);
+            case "album":
+                string[] artists = [.. LibraryManager.Album(id).Artists];
+                return string.Join('\n', artists);
+        }
+
+        return null;
     }
 }

@@ -1,207 +1,69 @@
-using System;
-using System.Collections.Generic;
-using ilikefrogs101.Logging;
-
 namespace Lyrbd.Daemon;
 public static class AudioHandler {
-    public static AudioBackend _backend;
-    
-    private static bool _loop = false;
-    private static bool _shuffle = false;
-    private static bool _hasTrack = false;
+    public static event Action OnCurrentTrackEnd;
+    private static AudioBackend _backend;
 
-    private static int _queueIndex = 0;
-    private static List<string> _queue;
+    public static void Play(string id) {
+        if (_backend == null) return;
 
-    private static string _currentAddress;
-
-    public static void Initialise() {
-        if(_backend != null) return;
-
-        _backend = new MiniAudioExBackend();
-        _backend.OnCurrentTrackEnd += _finished;
+        _backend.Play(FileHandler.DataPath(id));
     }
-
     public static void Pause(bool paused) {
-        if(_backend == null) return;
+        if (_backend == null) return;
+
         _backend.Pause(paused);
     }
-    public static void TogglePause() {
-        if(_backend == null) return;
-        _backend.TogglePause();
-    }
     public static void Restart() {
-        if(_backend == null) return;
+        if (_backend == null) return;
+
         _backend.Restart();
     }
     public static void Stop() {
-        if(_backend == null) return;
+        if (_backend == null) return;
+
         _backend.Stop();
-        _hasTrack = false;
-    }
-    public static void Next() {
-        if(_backend == null) return;
-        _pickNextTrack();
-    }
-    public static void Previous() {
-        if(_backend == null) return;
-        _queueIndex -= 2;
-        if(_queueIndex < 0) {
-            _queueIndex = _queue.Count - 1;
-        }
-        _pickNextTrack();
-    }
-    public static void SkipQueue(int position) {
-        if(!_hasTrack) return;
-        if(_queue.Count >= position || position < 0) return;
-        _queueIndex = position;
-        _pickNextTrack();
     }
     public static void Forward(ulong seconds) {
-        if(_backend == null) return;
+        if (_backend == null) return;
+
         _backend.Forward(seconds);
     }
     public static void Backward(ulong seconds) {
-        if(_backend == null) return;
+        if (_backend == null) return;
+
         _backend.Backward(seconds);
     }
-    public static void SetShuffle(bool shuffle) {
-        if(!_hasTrack) {
-            _shuffle = shuffle;
-            return;
-        }
-        int currentTrackIndex = _queueIndex - 1;
-        if(currentTrackIndex < 0) {
-            currentTrackIndex = _queue.Count;
-        }
-        string currentTrackID = _queue[currentTrackIndex];
-
-        _shuffle = shuffle;
+    public static void SetVolume(float volume) {
+        if (_backend == null) return;
         
-        _buildQueueFromSource();
-        _queueIndex = _queue.IndexOf(currentTrackID) + 1;
-    }
-    public static void ToggleShuffle() {
-        SetShuffle(!_shuffle);
-    }
-    public static void SetLoop(bool loop) {
-        _loop = loop;
-    }
-    public static void ToggleLoop() {
-        SetLoop(!_loop);
-    }
-    public static void SetVolume(float volumePercent) {
-        if(_backend == null) return;
-        _backend.SetVolume(volumePercent / 100);
-    }
-    public static void Play(string address) {
-        if(!TrackManager.ValidAddress(address)) {
-            Log.ErrorMessage($"Cannot play {address}, it does not exist");
-            return;
-        }
-
-        _currentAddress = address;
-
-        _buildQueueFromSource();
-        _pickNextTrack();
-
-        _hasTrack = true;
+        _backend.SetVolume(volume);
     }
 
-    private static void _buildQueueFromSource() {
-        _queueIndex = 0;
-        (string type, string id) = TrackManager.SplitAddress(_currentAddress);
+    public static bool IsPaused() {
+        if (_backend == null) return true;
 
-        switch(type) {
-            case "track":
-                _queue = [_currentAddress.Split(':')[1]];
-                break;
-            case "playlist":
-                _queue = [.. TrackManager.GetPlaylist(id).Tracks];
-                break;
-            case "artist":
-                _queue = [.. TrackManager.GetArtist(id).Tracks];
-                break;
-            case "album":
-                _queue = [.. TrackManager.GetAlbum(id).Tracks];
-                break;
-        }
+        return _backend.IsPaused();
+    }
+    public static float Volume() {
+        if (_backend == null) return 1;
 
-        if (_shuffle) {
-            _queue.Shuffle();
-        }
+        return _backend.Volume();
     }
-    private static void _pickNextTrack() {
-        if(_queueIndex == _queue.Count) {
-            if(_loop) {
-                _buildQueueFromSource();
-                _queueIndex = 0;
-            }
-            else {
-                Stop();
-                return;
-            }
-        }
+    public static ulong TrackProgress() {
+        if (_backend == null) return 0;
 
-        _play(_queue[_queueIndex]);
-        ++_queueIndex;
+        return _backend.TrackProgress();
     }
-    private static void _play(string track) {
-        if(_backend == null) return;
-        _backend.Play(track);
-    }
-    private static void _finished() {
-        _pickNextTrack();
+    public static ulong TrackLength() {
+        if (_backend == null) return 0;
+
+        return _backend.TrackLength();
     }
 
-    public static string GetAddress() {
-        if(_hasTrack == false) return "Not Playing";
-        return _currentAddress;
-    }
-    public static string GetCurrentTrackId() {
-        if(_hasTrack == false) return "Not Playing";
-        return _backend.CurrentTrack;
-    }
-    public static ulong GetProgress() {
-        if(_hasTrack == false) return 0;
-        return _backend.Progress();
-    }
-    public static ulong GetLength() {
-        if(_hasTrack == false) return 0;
-        return _backend.Length();
-    }
-    public static string[] GetQueue() {
-        if(_hasTrack == false) return [];
-        return [.. _queue];
-    }
-    public static int GetQueuePosition() {
-        if(_hasTrack == false) return 0;
-        return _queueIndex - 1;
-    }
-    public static bool GetPauseState() {
-        if(_backend == null) return true;
-        return _backend.Paused();
-    }
-    public static bool GetShuffleState() {
-        return _shuffle;
-    }
-    public static bool GetLoopState() {
-        return _loop;
-    }
-    public static float GetVolume() {
-        if(_backend == null) return 100;
-        return _backend.Volume() * 100;
-    }
-
-    private static void Shuffle<T>(this IList<T> list)
-    {
-        int n = list.Count;
-        while (n > 1) {
-            n--;
-            int k = Random.Shared.Next(n + 1);
-            T value = list[k];
-            list[k] = list[n];
-            list[n] = value;
-        }
+    public static void Initialise() {
+        if (_backend != null) return;
+        
+        _backend = new MiniAudioExBackend();
+        _backend.OnCurrentTrackEnd += () => OnCurrentTrackEnd?.Invoke();
     }
 }

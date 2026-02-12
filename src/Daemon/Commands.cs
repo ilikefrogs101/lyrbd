@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using ilikefrogs101.CLI;
+using ilikefrogs101.Logging;
 using ilikefrogs101.Shutdown;
 
 namespace Lyrbd.Daemon;
@@ -19,23 +20,23 @@ public static class Commands {
     }
     [Command(Name = "next", Description = "advance to the next track in the queue")]
     public static void Next(Arguments arguments) {
-        AudioHandler.Next();
+        QueueHandler.Next();
     }
     [Command(Name = "previous", Description = "revert to the previous track in the queue")]
     public static void Previous(Arguments arguments) {
-        AudioHandler.Previous();
+        QueueHandler.Previous();
     }
     [Command(Name = "pause", Description = "pause the current track")]
     [Argument(Name = "on/off/toggle", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Pause(Arguments arguments) {
         arguments.GetArgumentValue("on/off/toggle", out string state);
-        if(state == "toggle") {
-            AudioHandler.TogglePause();
+        if (state == "toggle") {
+            AudioHandler.Pause(!AudioHandler.IsPaused());
         }
-        if(state == "on") {
+        if (state == "on") {
             AudioHandler.Pause(true);
         }
-        if(state == "off") {
+        if (state == "off") {
             AudioHandler.Pause(false);
         }        
     }
@@ -43,13 +44,13 @@ public static class Commands {
     [Argument(Name = "position", ArgumentType = ArgumentType.PositionalRequired)]
     public static void SkipQueue(Arguments arguments) {
         arguments.GetArgumentValue("position", out int position);
-        AudioHandler.SkipQueue(position);
+        QueueHandler.SkipQueue(position);
     }
     [Command(Name = "play", Description = "play a track, playlist, album, or artist")]
     [Argument(Name = "address", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Play(Arguments arguments) {
         arguments.GetArgumentValue("address", out string address);
-        AudioHandler.Play(address);
+        QueueHandler.Play(address);
     }
     [Command(Name = "forward", Description = "skip forwards in the current track")]
     [Argument(Name = "seconds", ArgumentType = ArgumentType.PositionalRequired)]
@@ -73,29 +74,31 @@ public static class Commands {
     [Argument(Name = "autocapitalise", ArgumentType = ArgumentType.Flag, Boolean = true)]
     [Argument(Name = "stripnumbers", ArgumentType = ArgumentType.Flag, Boolean = true)]
     [Argument(Name = "strippunctuation", ArgumentType = ArgumentType.Flag, Boolean = true)]
+    [Argument(Name = "single", ArgumentType = ArgumentType.Flag, Boolean = true)]
     public static void Import(Arguments arguments) {
-        arguments.GetArgumentValue("titleoverride", out FileHandler.TitleOverride);
-        arguments.GetArgumentValue("albumoverride", out FileHandler.TitleOverride);
-        arguments.GetArgumentValue("tracknumberoverride", out FileHandler.TrackNumberOverride);
+        arguments.GetArgumentValue("titleoverride", out TrackImporter.TitleOverride);
+        arguments.GetArgumentValue("albumoverride", out TrackImporter.AlbumOverride);
+        arguments.GetArgumentValue("tracknumberoverride", out TrackImporter.TrackNumberOverride);
 
         arguments.GetArgumentValue("artistsoverride", out string artists);
-        if(artists != default) {
-            FileHandler.ArtistsOverride = artists.Split(',');
+        if (artists != default) {
+            TrackImporter.ArtistsOverride = artists.Split(',');
         }
 
-        FileHandler.AutoSpace = arguments.FlagTrigged("autospace");
-        FileHandler.AutoCapitalise = arguments.FlagTrigged("autocapitalise");
-        FileHandler.StripNumbers = arguments.FlagTrigged("stripnumbers");
-        FileHandler.StripPunctuation = arguments.FlagTrigged("strippunctuation");
+        TrackImporter.AutoSpace = arguments.FlagTrigged("autospace");
+        TrackImporter.AutoCapitalise = arguments.FlagTrigged("autocapitalise");
+        TrackImporter.StripNumbers = arguments.FlagTrigged("stripnumbers");
+        TrackImporter.StripPunctuation = arguments.FlagTrigged("strippunctuation");
+        TrackImporter.Single = arguments.FlagTrigged("single");
 
         arguments.GetArgumentValue("path", out string path);
-        FileHandler.Import(path);
+        TrackImporter.Import(path);
     }
     [Command(Name = "delete", Description = "delete a track")]
     [Argument(Name = "address", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Delete(Arguments arguments) {
-        arguments.GetArgumentValue("addresss", out string address);
-        TrackManager.Delete(address);
+        arguments.GetArgumentValue("address", out string address);
+        LibraryManager.Delete(address);
     }
     [Command(Name = "query", Description = "fetch information from the music player")]
     [Argument(Name = "type", ArgumentType = ArgumentType.PositionalRequired)]
@@ -116,13 +119,13 @@ public static class Commands {
 
         switch (mode) {
             case "add":
-                TrackManager.AddToPlaylist(playlist, address);
+                LibraryManager.AddToPlaylist(playlist, address);
                 break;
             case "remove":
-                TrackManager.RemoveFromPlaylist(playlist, address);
+                LibraryManager.RemoveFromPlaylist(playlist, address);
                 break;
             case "delete":
-                TrackManager.DeletePlaylist(playlist);
+                LibraryManager.DeletePlaylist(playlist);
                 break;
         }
     }
@@ -130,28 +133,28 @@ public static class Commands {
     [Argument(Name = "on/off/toggle", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Shuffle(Arguments arguments) {
         arguments.GetArgumentValue("on/off/toggle", out string state);
-        if(state == "toggle") {
-            AudioHandler.ToggleShuffle();
+        if (state == "toggle") {
+            QueueHandler.SetShuffle(!QueueHandler.IsShuffled());
         }
-        if(state == "on") {
-            AudioHandler.SetShuffle(true);
+        if (state == "on") {
+            QueueHandler.SetShuffle(true);
         }
-        if(state == "off") {
-            AudioHandler.SetShuffle(false);
+        if (state == "off") {
+            QueueHandler.SetShuffle(false);
         }
     }
     [Command(Name = "loop", Description = "change the loop setting")]
     [Argument(Name = "on/off/toggle", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Loop(Arguments arguments) {
         arguments.GetArgumentValue("on/off/toggle", out string state);
-        if(state == "toggle") {
-            AudioHandler.ToggleLoop();
+        if (state == "toggle") {
+            QueueHandler.SetLoop(!QueueHandler.IsLooped());
         }
-        if(state == "on") {
-            AudioHandler.SetLoop(true);
+        if (state == "on") {
+            QueueHandler.SetLoop(true);
         }
-        if(state == "off") {
-            AudioHandler.SetLoop(false);
+        if (state == "off") {
+            QueueHandler.SetLoop(false);
         }
     }
     [Command(Name = "volume", Description = "change the volume setting")]

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ilikefrogs101.CLI;
 using ilikefrogs101.Logging;
 using ilikefrogs101.IPC;
@@ -10,8 +10,9 @@ public static class Program {
         Log.OnErrorInformation += Console.WriteLine;
 
         CommandRegistry.LoadCommands(typeof(Commands));
-        TrackManager.Initialise();
+        LibraryManager.Initialise();
         AudioHandler.Initialise();
+        QueueHandler.Initialise();
 
         IpcServer server = new IpcServer();
         Log.OnResponse += server.Broadcast;
