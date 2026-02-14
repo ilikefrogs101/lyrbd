@@ -94,6 +94,12 @@ public static class Commands {
         arguments.GetArgumentValue("path", out string path);
         TrackImporter.Import(path);
     }
+    public static void Export(Arguments arguments) {
+
+    }
+    public static void Update(Arguments arguments) {
+        
+    }
     [Command(Name = "delete", Description = "delete a track")]
     [Argument(Name = "address", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Delete(Arguments arguments) {
@@ -163,7 +169,7 @@ public static class Commands {
         arguments.GetArgumentValue("percent", out string percent);
         percent = new string([.. percent.Where(char.IsDigit)]);
 
-        float volume = (float)Convert.ToDouble(percent);
+        float volume = (float)Convert.ToDouble(percent) / 100;
         AudioHandler.SetVolume(volume);
     }
 }

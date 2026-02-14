@@ -95,10 +95,6 @@ public class MiniAudioExBackend : AudioBackend {
 
         _audioThread.Start();
 
-        ShutdownHandler.OnShutdownCalled += _dispose;
-    }
-    private void _dispose() {
-        _audioThread.Join();
-        AudioContext.Deinitialize();
+        ShutdownHandler.OnShutdownCalled += AudioContext.Deinitialize;
     }
 }
