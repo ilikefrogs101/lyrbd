@@ -39,7 +39,7 @@ public static class QueueHandler {
     }
     public static void SkipQueue(int position) {
         if (_sourceAddress == null) return;
-        if (_queue.Count >= position || position < 0) return;
+        if (position >= _queue.Count || position < 0) return;
 
         _queueIndex = position;
         _pickNextTrack();    
@@ -72,7 +72,7 @@ public static class QueueHandler {
         return _shuffle;
     }
     public static int QueuePosition() {
-        return _queueIndex;
+        return _queueIndex - 1;
     }
     public static string[] Queue() {
         return [.. _queue];
