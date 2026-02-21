@@ -10,6 +10,7 @@ public abstract class AudioBackend {
     public abstract void Stop();
     public abstract void Forward(ulong seconds);
     public abstract void Backward(ulong seconds);
+    public abstract void SkipTo(ulong seconds);
     public abstract void SetVolume(float volume);
 
     public abstract bool IsPaused();

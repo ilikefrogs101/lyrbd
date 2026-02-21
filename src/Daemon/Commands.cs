@@ -64,6 +64,12 @@ public static class Commands {
         arguments.GetArgumentValue("seconds", out ulong seconds);
         AudioHandler.Backward(seconds);
     }
+    [Command(Name = "skipto", Description = "skip to a point in the current track")]
+    [Argument(Name = "seconds", ArgumentType = ArgumentType.PositionalRequired)]
+    public static void SkipTo(Arguments arguments) {
+        arguments.GetArgumentValue("seconds", out ulong seconds);
+        AudioHandler.SkipTo(seconds);
+    }
     [Command(Name = "import", Description = "import a track to be played")]
     [Argument(Name = "path", ArgumentType = ArgumentType.PositionalRequired)]
     [Argument(Name = "titleoverride", ArgumentType = ArgumentType.Flag)]

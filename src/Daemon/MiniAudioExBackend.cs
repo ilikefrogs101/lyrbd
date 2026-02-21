@@ -58,6 +58,12 @@ public class MiniAudioExBackend : AudioBackend {
         }
         _source.Cursor = frame; 
     }
+    public override void SkipTo(ulong seconds) {
+        ulong frame = _secondsToFrames(seconds);
+        frame = Math.Clamp(frame, 0, _source.Length);
+
+        _source.Cursor = frame;
+    }
     public override void SetVolume(float volume) {
         _source.Volume = volume;
     }

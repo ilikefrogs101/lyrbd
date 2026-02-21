@@ -33,6 +33,11 @@ public static class AudioHandler {
 
         _backend.Backward(seconds);
     }
+    public static void SkipTo(ulong seconds) {
+        if (_backend == null) return;
+
+        _backend.SkipTo(seconds);
+    }
     public static void SetVolume(float volume) {
         if (_backend == null) return;
         
