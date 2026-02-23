@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ilikefrogs101.CLI" Version="1.1.0" />
+    <PackageReference Include="ilikefrogs101.CLI" Version="1.2.0" />
     <PackageReference Include="ilikefrogs101.IPC" Version="1.0.0" />
     <PackageReference Include="ilikefrogs101.Logging" Version="1.0.0" />
     <PackageReference Include="ilikefrogs101.Shutdown" Version="1.0.0" />
