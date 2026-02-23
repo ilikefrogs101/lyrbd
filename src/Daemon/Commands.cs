@@ -81,6 +81,7 @@ public static class Commands {
     [Argument(Name = "stripnumbers", ArgumentType = ArgumentType.Flag, Boolean = true)]
     [Argument(Name = "strippunctuation", ArgumentType = ArgumentType.Flag, Boolean = true)]
     [Argument(Name = "single", ArgumentType = ArgumentType.Flag, Boolean = true)]
+    [Argument(Name = "alphabeticaltracknumber", ArgumentType = ArgumentType.Flag, Boolean = true)]
     public static void Import(Arguments arguments) {
         arguments.GetArgumentValue("titleoverride", out TrackImporter.TitleOverride);
         arguments.GetArgumentValue("albumoverride", out TrackImporter.AlbumOverride);
@@ -96,6 +97,7 @@ public static class Commands {
         TrackImporter.StripNumbers = arguments.FlagTrigged("stripnumbers");
         TrackImporter.StripPunctuation = arguments.FlagTrigged("strippunctuation");
         TrackImporter.Single = arguments.FlagTrigged("single");
+        TrackImporter.AlphabeticalTrackNumber = arguments.FlagTrigged("alphabeticaltracknumber");
 
         arguments.GetArgumentValue("path", out string path);
         TrackImporter.Import(path);

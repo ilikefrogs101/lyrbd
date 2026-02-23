@@ -11,6 +11,7 @@ public static class TrackImporter {
     public static bool StripNumbers = false;
     public static bool StripPunctuation = false;
     public static bool Single = false;
+    public static bool AlphabeticalTrackNumber = false;
 
     public static void Import(string path) {
         _import(path);
@@ -40,9 +41,15 @@ public static class TrackImporter {
         LibraryManager.AddTrack(track);
     }
     private static void _importFolder(string path) {
-        string[] paths = Directory.GetFiles(path);
-        for (int i = 0; i < paths.Length; ++i) {
+        TrackNumberOverride = default;
+        
+        string[] paths = [.. Directory.GetFiles(path).OrderBy(Path.GetFileName)];        
+        for (uint i = 0; i < paths.Length; ++i) {
             _import(paths[i]);
+
+            if (AlphabeticalTrackNumber) {
+                TrackNumberOverride = i+1;
+            }
         }
     }
 
@@ -56,6 +63,7 @@ public static class TrackImporter {
         StripNumbers = false;
         StripPunctuation = false;
         Single = false;
+        AlphabeticalTrackNumber = false;
     }
     private static string _getTitleFromFile(string path) {
         if(TitleOverride != default) {
