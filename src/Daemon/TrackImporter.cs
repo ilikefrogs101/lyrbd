@@ -11,7 +11,7 @@ public static class TrackImporter {
     public static bool StripNumbers = false;
     public static bool StripPunctuation = false;
     public static bool Single = false;
-    public static bool AlphabeticalTrackNumber = false;
+    public static bool AlphabeticalTrackNumbers = false;
 
     public static void Import(string path) {
         _import(path);
@@ -47,7 +47,7 @@ public static class TrackImporter {
         for (uint i = 0; i < paths.Length; ++i) {
             _import(paths[i]);
 
-            if (AlphabeticalTrackNumber) {
+            if (AlphabeticalTrackNumbers) {
                 TrackNumberOverride = i+1;
             }
         }
@@ -63,7 +63,7 @@ public static class TrackImporter {
         StripNumbers = false;
         StripPunctuation = false;
         Single = false;
-        AlphabeticalTrackNumber = false;
+        AlphabeticalTrackNumbers = false;
     }
     private static string _getTitleFromFile(string path) {
         if(TitleOverride != default) {
