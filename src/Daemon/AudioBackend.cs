@@ -8,14 +8,14 @@ public abstract class AudioBackend {
     public abstract void Pause(bool paused);
     public abstract void Restart();
     public abstract void Stop();
-    public abstract void Forward(ulong seconds);
-    public abstract void Backward(ulong seconds);
-    public abstract void SkipTo(ulong seconds);
+    public abstract void Forward(double seconds);
+    public abstract void Backward(double seconds);
+    public abstract void SkipTo(double seconds);
     public abstract void SetVolume(float volume);
 
     public abstract bool IsPaused();
     public abstract float Volume();
-    public abstract ulong TrackProgress();
+    public abstract double TrackProgress();
 
     protected void _trackFinished() {
         OnCurrentTrackEnd?.Invoke();

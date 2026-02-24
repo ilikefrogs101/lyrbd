@@ -32,7 +32,7 @@ public static class Query {
                 output = _lookupQueue();
                 break;
             case "progress":
-                output = AudioHandler.TrackProgress().ToString();
+                output = _formatSeconds(AudioHandler.TrackProgress());
                 break;
             case "length":
                 output = _lookupLength(address);
@@ -67,12 +67,14 @@ public static class Query {
     }
 
     private static string _lookupLength(string address) {
-        double sum = 0;
         string[] tracks = LibraryManager.TracksFromAddress(address);
+
+        double sum = 0;
         for (int i = 0; i < tracks.Length; ++i) {
             sum += LibraryManager.Track(tracks[i]).Duration;
         }
-        return sum.ToString();
+
+        return _formatSeconds(sum);
     }
     private static string _lookupQueue() {
         _lastAddressQueryType = AddressType.TRACK;
@@ -149,5 +151,10 @@ public static class Query {
         }
 
         return output.ToString();
+    }
+
+    private static string _formatSeconds(double seconds) {
+        TimeSpan span = TimeSpan.FromSeconds(Math.Ceiling(seconds));
+        return span.ToString();
     }
 }

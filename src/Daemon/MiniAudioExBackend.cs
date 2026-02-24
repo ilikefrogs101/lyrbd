@@ -42,7 +42,7 @@ public class MiniAudioExBackend : AudioBackend {
     public override void Stop() {
         _source.Stop();
     }
-    public override void Forward(ulong seconds) {
+    public override void Forward(double seconds) {
         ulong frame = _source.Cursor + _secondsToFrames(seconds);
 
         if (frame < _source.Cursor || frame == _source.Length) {
@@ -50,7 +50,7 @@ public class MiniAudioExBackend : AudioBackend {
         }
         _source.Cursor = frame;     
     }
-    public override void Backward(ulong seconds) {
+    public override void Backward(double seconds) {
         ulong frame = _source.Cursor - _secondsToFrames(seconds);
 
         if (frame > _source.Cursor) {
@@ -58,7 +58,7 @@ public class MiniAudioExBackend : AudioBackend {
         }
         _source.Cursor = frame; 
     }
-    public override void SkipTo(ulong seconds) {
+    public override void SkipTo(double seconds) {
         ulong frame = _secondsToFrames(seconds);
         frame = Math.Clamp(frame, 0, _source.Length);
 
@@ -74,16 +74,16 @@ public class MiniAudioExBackend : AudioBackend {
     public override float Volume() {
         return _source.Volume;
     }
-    public override ulong TrackProgress() {
+    public override double TrackProgress() {
         if (_paused) return _framesToSeconds(_pausedFrame);
 
         return _framesToSeconds(_source.Cursor);
     }
 
-    private static ulong _secondsToFrames(ulong seconds) {
-        return seconds * SAMPLE_RATE;
+    private static ulong _secondsToFrames(double seconds) {
+        return (ulong)Math.Round(seconds * SAMPLE_RATE);
     }
-    private static ulong _framesToSeconds(ulong frames) {
+    private static double _framesToSeconds(ulong frames) {
         return frames / SAMPLE_RATE;
     }
 

@@ -53,22 +53,22 @@ public static class Commands {
         QueueHandler.Play(address);
     }
     [Command(Name = "forward", Description = "skip forwards in the current track")]
-    [Argument(Name = "seconds", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "time", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Forward(Arguments arguments) {
-        arguments.GetArgumentValue("seconds", out ulong seconds);
-        AudioHandler.Forward(seconds);
+        arguments.GetArgumentValue("time", out string time);
+        AudioHandler.Forward(_timeSpanStringToSeconds(time));
     }
     [Command(Name = "backward", Description = "skip backwards in the current track")]
-    [Argument(Name = "seconds", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "time", ArgumentType = ArgumentType.PositionalRequired)]
     public static void Backward(Arguments arguments) {
-        arguments.GetArgumentValue("seconds", out ulong seconds);
-        AudioHandler.Backward(seconds);
+        arguments.GetArgumentValue("time", out string time);     
+        AudioHandler.Backward(_timeSpanStringToSeconds(time));
     }
     [Command(Name = "skipto", Description = "skip to a point in the current track")]
-    [Argument(Name = "seconds", ArgumentType = ArgumentType.PositionalRequired)]
+    [Argument(Name = "time", ArgumentType = ArgumentType.PositionalRequired)]
     public static void SkipTo(Arguments arguments) {
-        arguments.GetArgumentValue("seconds", out ulong seconds);
-        AudioHandler.SkipTo(seconds);
+        arguments.GetArgumentValue("time", out string time);
+        AudioHandler.SkipTo(_timeSpanStringToSeconds(time));
     }
     [Command(Name = "import", Description = "import a track to be played")]
     [Argument(Name = "path", ArgumentType = ArgumentType.PositionalRequired)]
@@ -179,5 +179,27 @@ public static class Commands {
 
         float volume = (float)Convert.ToDouble(percent) / 100;
         AudioHandler.SetVolume(volume);
+    }
+
+    private static double _timeSpanStringToSeconds(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            throw new ArgumentException("Input cannot be empty.");
+
+        var parts = input.Split(':');
+        int[] timeParts = new int[4]; // days, hours, minutes, seconds
+        int len = parts.Length;
+
+        if (len > 4)
+            throw new FormatException("Too many time components.");
+
+        // Fill from the end
+        for (int i = 0; i < len; i++)
+        {
+            if (!int.TryParse(parts[len - 1 - i], out timeParts[3 - i]))
+                throw new FormatException($"Invalid number: {parts[len - 1 - i]}");
+        }
+
+        return new TimeSpan(timeParts[0], timeParts[1], timeParts[2], timeParts[3]).TotalSeconds;
     }
 }

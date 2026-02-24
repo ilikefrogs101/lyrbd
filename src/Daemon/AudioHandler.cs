@@ -23,17 +23,17 @@ public static class AudioHandler {
 
         _backend.Stop();
     }
-    public static void Forward(ulong seconds) {
+    public static void Forward(double seconds) {
         if (_backend == null) return;
 
         _backend.Forward(seconds);
     }
-    public static void Backward(ulong seconds) {
+    public static void Backward(double seconds) {
         if (_backend == null) return;
 
         _backend.Backward(seconds);
     }
-    public static void SkipTo(ulong seconds) {
+    public static void SkipTo(double seconds) {
         if (_backend == null) return;
 
         _backend.SkipTo(seconds);
@@ -54,7 +54,7 @@ public static class AudioHandler {
 
         return _backend.Volume();
     }
-    public static ulong TrackProgress() {
+    public static double TrackProgress() {
         if (_backend == null) return 0;
 
         return _backend.TrackProgress();
