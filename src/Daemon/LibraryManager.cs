@@ -181,7 +181,7 @@ public static class LibraryManager {
         for (int i = 0; i < _albums.Count; ++i) {
             string albumId = _albums.ElementAt(i).Key;
 
-            List<string> tracks = Album(albumId).Tracks.OrderBy(trackId => LibraryManager.Track(trackId).TrackNumber).ToList();
+            List<string> tracks = [.. Album(albumId).Tracks.OrderBy(trackId => Track(trackId).TrackNumber)];
 
             Album album = new(tracks, Album(albumId).Artists);
             _albums[albumId] = album;
