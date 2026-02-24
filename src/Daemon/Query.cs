@@ -11,10 +11,11 @@ public static class Query {
 
         return $"{_lastAddressQueryType}:{_lastAddressQueryOutput[index]}";
     }
-    public static void Enquire(string type, string address) {
-        string output = default;
-
+    public static void Enquire(string type, string address) {        
+        if (int.TryParse(address, out int index)) address = AddressFromIndex(index);
         if (address == "current") address = $"track:{QueueHandler.TrackId()}";
+
+        string output = default;
 
         switch (type) {
             case "current":

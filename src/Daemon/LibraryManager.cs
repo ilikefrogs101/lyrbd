@@ -71,6 +71,7 @@ public static class LibraryManager {
     }
 
     public static void AddToPlaylist(string id, string address) {
+        if (int.TryParse(id, out int index)) id = ParseAddress(Query.AddressFromIndex(index)).id;
         if (Playlist(id) == null) {
             _registry._playlists.Add(id, new([]));
         }
@@ -83,6 +84,7 @@ public static class LibraryManager {
         _updateSavedData();
     }
     public static void RemoveFromPlaylist(string id, string address) {
+        if (int.TryParse(id, out int index)) id = ParseAddress(Query.AddressFromIndex(index)).id;
         if (Playlist(id) == null) return;
 
         string[] removeQueue = TracksFromAddress(address);
@@ -93,6 +95,7 @@ public static class LibraryManager {
         _updateSavedData();
     }
     public static void DeletePlaylist(string id) {
+        if (int.TryParse(id, out int index)) id = ParseAddress(Query.AddressFromIndex(index)).id;
         _registry._playlists.Remove(id);
         _updateSavedData();
     }
