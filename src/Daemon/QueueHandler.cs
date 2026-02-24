@@ -13,10 +13,7 @@ public static class QueueHandler {
     private static string _trackId;
 
     public static void Play(string address) {
-        if (int.TryParse(address, out int index)) {
-            address = Query.AddressFromIndex(index);
-        }
-
+        if (int.TryParse(address, out int index)) address = Query.AddressFromIndex(index);
         if (!LibraryManager.ValidAddress(address)) return;
 
         _sourceAddress = address;

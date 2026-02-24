@@ -9,37 +9,25 @@ public static class LibraryManager {
     private static Dictionary<string, Album> _albums;
 
     public static Track Track(string id) {
-        if (int.TryParse(id, out int index)) {
-            id = ParseAddress(Query.AddressFromIndex(index)).id;
-        }
-
+        if (int.TryParse(id, out int index)) id = ParseAddress(Query.AddressFromIndex(index)).id;
         if (!_registry._tracks.ContainsKey(id)) return null;
 
         return _registry._tracks[id];
     }
     public static Playlist Playlist(string id) {
-        if (int.TryParse(id, out int index)) {
-            id = ParseAddress(Query.AddressFromIndex(index)).id;
-        }
-
+        if (int.TryParse(id, out int index)) id = ParseAddress(Query.AddressFromIndex(index)).id;
         if (!_registry._playlists.ContainsKey(id)) return null;
 
         return _registry._playlists[id];
     }
     public static Artist Artist(string id) {
-        if (int.TryParse(id, out int index)) {
-            id = ParseAddress(Query.AddressFromIndex(index)).id;
-        }
-
+        if (int.TryParse(id, out int index)) id = ParseAddress(Query.AddressFromIndex(index)).id;
         if (!_artists.ContainsKey(id)) return null;
     
         return _artists[id];
     }
     public static Album Album(string id) {
-        if (int.TryParse(id, out int index)) {
-            id = ParseAddress(Query.AddressFromIndex(index)).id;
-        }
-
+        if (int.TryParse(id, out int index)) id = ParseAddress(Query.AddressFromIndex(index)).id;
         if (!_albums.ContainsKey(id)) return null;
 
         return _albums[id];
@@ -110,9 +98,7 @@ public static class LibraryManager {
     }
 
     public static string[] TracksFromAddress(string address) {
-        if (int.TryParse(address, out int index)) {
-            address = Query.AddressFromIndex(index);
-        }
+        if (int.TryParse(address, out int index)) address = Query.AddressFromIndex(index);
 
         if (!ValidAddress(address)) return [];
 

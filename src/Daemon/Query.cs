@@ -14,7 +14,7 @@ public static class Query {
     public static void Enquire(string type, string address) {
         string output = default;
 
-        if (address == "current") address = QueueHandler.TrackId();
+        if (address == "current") address = $"track:{QueueHandler.TrackId()}";
 
         switch (type) {
             case "current":
@@ -65,7 +65,7 @@ public static class Query {
     }
 
     private static string _lookupLength(string address) {
-        if (address == default) address = QueueHandler.TrackId();
+        if (address == default) address = $"track:{QueueHandler.TrackId()}";
 
         string[] tracks = LibraryManager.TracksFromAddress(address);
 
