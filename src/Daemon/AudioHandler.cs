@@ -59,11 +59,6 @@ public static class AudioHandler {
 
         return _backend.TrackProgress();
     }
-    public static ulong TrackLength() {
-        if (_backend == null) return 0;
-
-        return _backend.TrackLength();
-    }
 
     public static void Initialise() {
         if (_backend != null) return;

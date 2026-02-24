@@ -16,7 +16,6 @@ public abstract class AudioBackend {
     public abstract bool IsPaused();
     public abstract float Volume();
     public abstract ulong TrackProgress();
-    public abstract ulong TrackLength();
 
     protected void _trackFinished() {
         OnCurrentTrackEnd?.Invoke();

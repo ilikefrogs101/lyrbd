@@ -79,9 +79,6 @@ public class MiniAudioExBackend : AudioBackend {
 
         return _framesToSeconds(_source.Cursor);
     }
-    public override ulong TrackLength() {
-        return _framesToSeconds(_source.Length);
-    }
 
     private static ulong _secondsToFrames(ulong seconds) {
         return seconds * SAMPLE_RATE;
