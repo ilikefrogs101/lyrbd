@@ -33,8 +33,9 @@ public static class TrackImporter {
         string[] artists = _getArtistsFromFile(path);
         string album = _getAlbumFromFile(path);
         uint trackNumber = _getTrackNumberFromFile(path);
+        double duration = _getDurationFromFile(path);
 
-        Track track = new Track(title, artists, album, trackNumber);
+        Track track = new Track(title, artists, album, trackNumber, duration);
         string trackId = LibraryManager.TrackId(track);
 
         FileHandler.Import(path, trackId);
@@ -144,5 +145,9 @@ public static class TrackImporter {
         }
 
         return 0;
+    }
+    private static double _getDurationFromFile(string path) {
+        using TagLib.File tagFile = TagLib.File.Create(path);
+        return tagFile.Properties.Duration.TotalSeconds;
     }
 }

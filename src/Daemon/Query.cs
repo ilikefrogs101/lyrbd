@@ -35,7 +35,7 @@ public static class Query {
                 output = AudioHandler.TrackProgress().ToString();
                 break;
             case "length":
-                output = AudioHandler.TrackLength().ToString();
+                output = _lookupLength(address);
                 break;
             case "pause":
                 output = AudioHandler.IsPaused().ToString();
@@ -66,6 +66,16 @@ public static class Query {
         if (output != default) Log.OutputResponse(output);
     }
 
+    private static string _lookupLength(string address) {
+        if (!LibraryManager.ValidAddress(address)) return "-1";
+
+        double sum = 0;
+        string[] tracks = LibraryManager.TracksFromAddress(address);
+        for (int i = 0; i < tracks.Length; ++i) {
+            sum += LibraryManager.Track(tracks[i]).Duration;
+        }
+        return sum.ToString();
+    }
     private static string _lookupQueue() {
         _lastAddressQueryType = AddressType.TRACK;
         _lastAddressQueryOutput = QueueHandler.Queue();
