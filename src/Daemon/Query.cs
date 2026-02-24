@@ -67,8 +67,6 @@ public static class Query {
     }
 
     private static string _lookupLength(string address) {
-        if (!LibraryManager.ValidAddress(address)) return "-1";
-
         double sum = 0;
         string[] tracks = LibraryManager.TracksFromAddress(address);
         for (int i = 0; i < tracks.Length; ++i) {
