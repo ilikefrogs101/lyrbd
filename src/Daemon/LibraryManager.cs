@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Lyrbd.Daemon;
 public static class LibraryManager {
     private static Registry _registry;
@@ -43,7 +47,7 @@ public static class LibraryManager {
         _updateNonPersistantData();
     }
     public static void Delete(string address) {
-        void deleteTrack(string id) {
+        static void deleteTrack(string id) {
             _registry._tracks.Remove(id);
             FileHandler.Delete(id);
         }
@@ -92,44 +96,45 @@ public static class LibraryManager {
     public static string[] TracksFromAddress(string address) {
         if (!ValidAddress(address)) return [];
 
-        (string type, string id) = SplitAddress(address);
+        (AddressType type, string id) = ParseAddress(address);
 
-        switch (type) {
-            case "playlist":
-                return [.. Playlist(id).Tracks];
-            case "artist":
-                return [.. Artist(id).Tracks];
-            case "album":
-                return [.. Album(id).Tracks];
-            default:
-                return [id];
-        }
+        return type switch
+        {
+            AddressType.PLAYLIST => [.. Playlist(id).Tracks],
+            AddressType.ARTIST => [.. Artist(id).Tracks],
+            AddressType.ALBUM => [.. Album(id).Tracks],
+            _ => [id],
+        };
     }
     public static bool ValidAddress(string address) {
         if (address == default) return false;
 
-        (string type, string id) = SplitAddress(address);
+        (AddressType type, string id) = ParseAddress(address);
 
         return type switch
         {
-            "track" => _registry._tracks.ContainsKey(id),
-            "playlist" => _registry._playlists.ContainsKey(id),
-            "artist" => _artists.ContainsKey(id),
-            "album" => _albums.ContainsKey(id),
+            AddressType.TRACK => _registry._tracks.ContainsKey(id),
+            AddressType.PLAYLIST => _registry._playlists.ContainsKey(id),
+            AddressType.ARTIST => _artists.ContainsKey(id),
+            AddressType.ALBUM => _albums.ContainsKey(id),
             _ => false,
         };
     }
-    public static (string type, string id) SplitAddress(string address) {
+    public static (AddressType type, string id) ParseAddress(string address) {
         string[] parts = address.Split(':', 2);
 
         if (parts.Length < 2) {
-            return (null, null);
+            return (AddressType.INVALID, default);
         }
         
-        string type = parts[0];
+        string type = parts[0].ToUpper();
         string id = parts[1];
 
-        return (type, id);
+        if (!Enum.TryParse(type, out AddressType typeEnum)) {
+            return (AddressType.INVALID, default);
+        }
+
+        return (typeEnum, id);
     }
     public static string TrackId(Track track) {
         return $"{track.Album}::{track.Title}";
@@ -186,12 +191,20 @@ public static class LibraryManager {
         }
         else {
             List<string> tracks = [TrackId(track)];
-            List<string> artists = new(track.Artists);
+            List<string> artists = [.. track.Artists];
 
             Album album = new(tracks, artists);
             _albums.Add(track.Album, album);
         }
     }
+}
+
+public enum AddressType {
+    INVALID,
+    TRACK,
+    PLAYLIST,
+    ARTIST,
+    ALBUM
 }
 
 public record Registry(

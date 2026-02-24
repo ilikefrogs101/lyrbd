@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Lyrbd.Daemon;
 public static class QueueHandler {
@@ -6,12 +7,16 @@ public static class QueueHandler {
     private static bool _shuffle;
 
     private static int _queueIndex;
-    private static List<string> _queue;
+    private static List<string> _queue = [];
 
     private static string _sourceAddress;
     private static string _trackId;
 
     public static void Play(string address) {
+        if (int.TryParse(address, out int index)) {
+            address = Query.AddressFromIndex(index);
+        }
+
         if (!LibraryManager.ValidAddress(address)) return;
 
         _sourceAddress = address;

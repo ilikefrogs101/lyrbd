@@ -4,6 +4,13 @@ using ilikefrogs101.Logging;
 
 namespace Lyrbd.Daemon;
 public static class Query {
+    private static AddressType _lastAddressQueryType;
+    private static string[] _lastAddressQueryOutput;
+    public static string AddressFromIndex(int index) {
+        if (index > _lastAddressQueryOutput.Length || index < 0) return default;
+
+        return $"{_lastAddressQueryType}:{_lastAddressQueryOutput[index]}";
+    }
     public static void Enquire(string type, string address) {
         string output = default;
 
@@ -56,63 +63,83 @@ public static class Query {
                 break;
         }
 
-        Log.OutputResponse(output);
+        if (output != default) Log.OutputResponse(output);
     }
 
     private static string _lookupQueue() {
-        StringBuilder output = new();
+        _lastAddressQueryType = AddressType.TRACK;
+        _lastAddressQueryOutput = QueueHandler.Queue();
 
-        string[] queue = QueueHandler.Queue();
-        for(int i = 0; i < queue.Length; ++i) {
+        return _buildAddressQueryOutput();
+    }
+    private static string _lookupTracks(string address) {
+        _lastAddressQueryType = AddressType.TRACK;
+
+        if(address == default) {
+            _lastAddressQueryOutput = LibraryManager.Tracks();
+            return _buildAddressQueryOutput();
+        }
+
+        _lastAddressQueryOutput = LibraryManager.TracksFromAddress(address);
+        return _buildAddressQueryOutput();
+    }
+    private static string _lookupPlaylists() {
+        _lastAddressQueryType = AddressType.PLAYLIST;
+
+        _lastAddressQueryOutput = LibraryManager.Playlists();
+        return _buildAddressQueryOutput();
+    }
+    private static string _lookupArtists(string address) {
+        _lastAddressQueryType = AddressType.ARTIST;
+
+        if(address == default) {
+            _lastAddressQueryOutput = LibraryManager.Artists();
+            return _buildAddressQueryOutput();
+        }
+
+        (AddressType type, string id) = LibraryManager.ParseAddress(address);
+        switch (type) {
+            case AddressType.TRACK:
+                _lastAddressQueryOutput = LibraryManager.Track(id).Artists;
+                break;
+            case AddressType.ALBUM:
+                _lastAddressQueryOutput = [.. LibraryManager.Album(id).Artists];
+                break;
+        }
+
+        return _buildAddressQueryOutput();
+    }
+    private static string _lookupAlbums(string address) {
+        _lastAddressQueryType = AddressType.ALBUM;
+
+        if(address == default) {
+            _lastAddressQueryOutput = LibraryManager.Albums();
+            return _buildAddressQueryOutput();
+        }
+
+        (AddressType type, string id) = LibraryManager.ParseAddress(address);
+        switch (type) {
+            case AddressType.TRACK:
+                _lastAddressQueryOutput = [LibraryManager.Track(id).Album];
+                break;
+            case AddressType.ARTIST:
+                _lastAddressQueryOutput = [.. LibraryManager.Artist(id).Albums];
+                break;
+        }
+
+        return _buildAddressQueryOutput();
+    }
+    private static string _buildAddressQueryOutput() {
+        if (_lastAddressQueryOutput == null || _lastAddressQueryOutput.Length < 1) return default;
+
+        StringBuilder output = new();
+        for(int i = 0; i < _lastAddressQueryOutput.Length; ++i) {
             output.Append(i);
             output.Append(". ");
-            output.Append(queue[i]);
+            output.Append(_lastAddressQueryOutput[i]);
             output.Append('\n');
         }
 
         return output.ToString();
-    }
-    private static string _lookupTracks(string address) {
-        if(address == default)
-            return string.Join('\n', LibraryManager.Tracks());
-        
-        return string.Join('\n', LibraryManager.TracksFromAddress(address));
-    }
-    private static string _lookupPlaylists() {
-        return string.Join('\n', LibraryManager.Playlists());
-    }
-    private static string _lookupArtists(string address) {
-        if(address == default) {
-            string[] artists = LibraryManager.Artists();
-            return string.Join('\n', artists);
-        }
-
-        (string type, string id) = LibraryManager.SplitAddress(address);
-        switch (type) {
-            case "track":
-                return LibraryManager.Track(id).Album;
-            case "artist":
-                string[] albums = [.. LibraryManager.Artist(id).Albums];
-                return string.Join('\n', albums);
-        }
-
-        return null;
-    }
-    private static string _lookupAlbums(string address) {
-        if(address == default) {
-            string[] albums = LibraryManager.Albums();
-            return string.Join('\n', albums);
-        }
-
-        (string type, string id) = LibraryManager.SplitAddress(address);
-        switch (type) {
-            case "track":
-                return string.Join('\n', LibraryManager.Track(id).Artists);
-            case "album":
-                string[] artists = [.. LibraryManager.Album(id).Artists];
-                return string.Join('\n', artists);
-        }
-
-        return null;
     }
 }
