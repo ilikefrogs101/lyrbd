@@ -19,10 +19,15 @@ public static class Query {
 
         switch (type) {
             case "current":
-                output = QueueHandler.TrackId();
+                _lastAddressQueryType = AddressType.TRACK;
+                _lastAddressQueryOutput = [QueueHandler.TrackId()];
+                output = _buildAddressQueryOutput();
                 break;
             case "address":
-                output = QueueHandler.Address();
+                (AddressType addressType, string id) = LibraryManager.ParseAddress(QueueHandler.Address());
+                _lastAddressQueryType = addressType;
+                _lastAddressQueryOutput = [id];
+                output = _buildAddressQueryOutput();
                 break;
             case "queueposition":
                 output = QueueHandler.QueuePosition().ToString();
