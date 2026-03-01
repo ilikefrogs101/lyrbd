@@ -15,6 +15,7 @@ public static class Query {
     public static void Enquire(string type, string address) {        
         if (int.TryParse(address, out int index)) address = AddressFromIndex(index);
         if (address == "current") address = $"track:{QueueHandler.TrackId()}";
+        if (address == "address") address = QueueHandler.Address();
 
         string output = default;
 
