@@ -9,7 +9,8 @@ public static class Query {
     public static string AddressFromIndex(int index) {
         if (index > _lastAddressQueryOutput.Length || index < 0) return default;
 
-        return $"{_lastAddressQueryType}:{_lastAddressQueryOutput[index]}";
+        if(_lastAddressQueryType != AddressType.INVALID) return $"{_lastAddressQueryType}:{_lastAddressQueryOutput[index]}";
+        else return $"{_lastAddressQueryOutput[index]}";
     }
     public static void Enquire(string type, string address) {        
         if (int.TryParse(address, out int index)) address = AddressFromIndex(index);
@@ -64,6 +65,11 @@ public static class Query {
                 break;
             case "albums":
                 output = _lookupAlbums(address);
+                break;
+            case "search":
+                _lastAddressQueryType = AddressType.INVALID;
+                _lastAddressQueryOutput = LibraryManager.Search(address, 8);
+                output = _buildAddressQueryOutput();
                 break;
         }
 

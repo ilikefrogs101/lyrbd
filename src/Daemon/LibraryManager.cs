@@ -8,7 +8,7 @@ public static class LibraryManager {
     private static Dictionary<string, Artist> _artists;
     private static Dictionary<string, Album> _albums;
     
-    private static string[] _allAddresses;
+    private static Dictionary<string, string> _addressLookup;
 
     public static Track Track(string id) {
         if (int.TryParse(id, out int index)) id = ParseAddress(Query.AddressFromIndex(index)).id;
@@ -45,6 +45,30 @@ public static class LibraryManager {
     }
     public static string[] Albums() {
         return [.. _albums.Keys];
+    }
+    public static string[] Search(string query, int results) {
+        (AddressType addressType, string _) = ParseAddress(query, true);
+
+        string[] topResults;
+        if (addressType == AddressType.INVALID) {
+            topResults = _addressLookup
+                .OrderByDescending(pair => _stringDistance(pair.Value, query))
+                .ThenBy(pair => pair.Key)
+                .Select(pair => pair.Key)
+                .Take(results)
+                .ToArray();
+        }
+        else {
+            topResults = _addressLookup
+                .Where(pair => pair.Key.StartsWith(addressType.ToString(), StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(pair => _stringDistance(pair.Value, query))
+                .ThenBy(pair => pair.Key)
+                .Select(pair => pair.Key)
+                .Take(results)
+                .ToArray();
+        }
+                
+        return topResults;
     }
     
     public static void AddTrack(Track track) {
@@ -131,13 +155,8 @@ public static class LibraryManager {
             _ => false,
         };
     }
-    public static (AddressType type, string id) ParseAddress(string address) {
-        Dictionary<string, int> levenshteinDistances = new();
-        for (int i = 0; i < _allAddresses.Length; ++i) {
-            levenshteinDistances.Add(_allAddresses[i], _levenshteinDistance(_allAddresses[i], address));
-        }
-        levenshteinDistances = levenshteinDistances.OrderBy(kv => kv.Value).ThenBy(kv => kv.Key).ToDictionary(kv => kv.Key, kv => kv.Value);
-        address = levenshteinDistances.ElementAt(0).Key;
+    public static (AddressType type, string id) ParseAddress(string address, bool disableFuzzySearch = false) {
+        if (!disableFuzzySearch) address = Search(address, 1)[0];
 
         string[] parts = address.Split(':', 2);
 
@@ -227,61 +246,80 @@ public static class LibraryManager {
             _albums.Add(track.Album, album);
         }
 
-        _generateAllAddresses();
+        _generateAddressLookup();
     }
-    private static void _generateAllAddresses() {
-        List<string> allAddresses = new();
-
-        for (int i = 0; i < _registry._tracks.Count; ++i) {
-            allAddresses.Add($"track:{_registry._tracks.ElementAt(i).Key}");
-        }
-        for (int i = 0; i < _registry._playlists.Count; ++i) {
-            allAddresses.Add($"playlist:{_registry._playlists.ElementAt(i).Key}");
-        }
-        for (int i = 0; i < _artists.Count; ++i) {
-            allAddresses.Add($"artist:{_artists.ElementAt(i).Key}");
-        }
-        for (int i = 0; i < _albums.Count; ++i) {
-            allAddresses.Add($"album:{_albums.ElementAt(i).Key}");
-        }
-
-        _allAddresses = [.. allAddresses];
+    private static void _generateAddressLookup() {
+        _addressLookup = _registry._tracks
+            .ToDictionary(track => $"track:{track.Key}", track => track.Value.Title)
+            .Concat(
+                _registry._playlists.ToDictionary(playlist => $"playlist:{playlist.Key}", playlist => playlist.Key)
+            )
+            .Concat(
+                _artists.ToDictionary(artist => $"artist:{artist.Key}", artist => artist.Key)
+            )
+            .Concat(
+                _albums.ToDictionary(album => $"album:{album.Key}", album => album.Key)
+            )
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
 
-    private static int _levenshteinDistance(string s, string t) {
-        s = s.ToLower();
-        t = t.ToLower();
-        
-        int m = s.Length;
-        int n = t.Length;
-        int[,] d = new int[m + 1, n + 1];
-        
-        for (int i = 0; i <= m; i++) {
-            for (int j = 0; j <= n; j++) {
-                d[i, j] = 0;
+    private static double _stringDistance(string s1, string s2) {
+        if (s1 == s2) return 1.0;
+
+        int len1 = s1.Length;
+        int len2 = s2.Length;
+
+        if (len1 == 0 || len2 == 0) return 0.0;
+
+        int maxDistance = (int)Math.Floor(Math.Max(len1, len2) / 2.0) - 1;
+
+        int[] hashS1 = new int[len1];
+        int[] hashS2 = new int[len2];
+
+        int match = 0;
+
+        for (int i = 0; i < len1; i++) {
+            for (int j = Math.Max(0, i - maxDistance); j < Math.Min(len2, i + maxDistance + 1); j++) {
+                if (s1[i] == s2[j] && hashS2[j] == 0) {
+                    hashS1[i] = 1;
+                    hashS2[j] = 1;
+                    match++;
+                    break;
+                }
             }
         }
 
-        for (int i = 1; i <= m; i++) {
-            d[i, 0] = i;
-        }
+        if (match == 0) return 0.0;
 
-        for (int j = 1; j <= n; j++) {
-            d[0, j] = j;
-        }
+        double t = 0;
+        int point = 0;
+        for (int i = 0; i < len1; i++) {
+            if (hashS1[i] == 1) {
+                while (hashS2[point] == 0)
+                    point++;
 
-        for (int i = 1; i <= m; i++) {
-            for (int j = 1; j <= n; j++) {
-                int substitutionCost = (s[i - 1] == t[j - 1]) ? 0 : 1;
-
-                d[i, j] = Math.Min(
-                    Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
-                    d[i - 1, j - 1] + substitutionCost
-                );
+                if (s1[i] != s2[point++])
+                    t++;
             }
         }
 
-        return d[m, n];
+        double jaroDistance = (((double)match / len1) +
+                            ((double)match / len2) +
+                            ((double)(match - t / 2.0) / match)) / 3.0;
+
+        double prefixBonus = 0;
+        if (jaroDistance > 0.7) {
+            int prefix = 0;
+            for (int i = 0; i < Math.Min(4, Math.Min(len1, len2)); i++) {
+                if (s1[i] == s2[i])
+                    prefix++;
+                else
+                    break;
+            }
+            prefixBonus = 0.1 * prefix * (1 - jaroDistance);
+        }
+
+        return jaroDistance + prefixBonus;
     }
 }
 
