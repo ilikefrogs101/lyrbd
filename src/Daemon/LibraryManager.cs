@@ -146,7 +146,7 @@ public static class LibraryManager {
         return (typeEnum, id);
     }
     public static string TrackId(Track track) {
-        return $"{track.Album}::{track.Title}";
+        return $"{track.Title}@{track.Album}";
     }
 
     public static void Initialise() {
@@ -155,6 +155,8 @@ public static class LibraryManager {
     }
 
     private static void _updateSavedData() {
+        _orderAddresses();
+
         FileHandler.SaveRegistry(_registry);
     }
     private static void _updateNonPersistantData() {
@@ -167,6 +169,8 @@ public static class LibraryManager {
             _constructAlbumsFromTrack(track);
         }
 
+        _orderAddresses();
+
         for (int i = 0; i < _albums.Count; ++i) {
             string albumId = _albums.ElementAt(i).Key;
 
@@ -175,6 +179,14 @@ public static class LibraryManager {
             Album album = new(tracks, Album(albumId).Artists);
             _albums[albumId] = album;
         }
+    }
+    private static void _orderAddresses() {
+        Dictionary<string, Track> tracks = _registry._tracks.OrderBy(kv => kv.Key).ToDictionary(kv => kv.Key, kv => kv.Value);;
+        Dictionary<string, Playlist> playlists = _registry._playlists.OrderBy(kv => kv.Key).ToDictionary(kv => kv.Key, kv => kv.Value);;
+        _registry = new Registry(tracks, playlists);
+
+        _artists = _artists.OrderBy(kv => kv.Key).ToDictionary(kv => kv.Key, kv => kv.Value);
+        _albums = _albums.OrderBy(kv => kv.Key).ToDictionary(kv => kv.Key, kv => kv.Value);
     }
     private static void _constructArtistsFromTrack(Track track) {
         for (int i = 0; i < track.Artists.Length; ++i) {
