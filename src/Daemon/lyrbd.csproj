@@ -14,6 +14,7 @@
     <PackageReference Include="ilikefrogs101.Logging" Version="1.0.0" />
     <PackageReference Include="ilikefrogs101.Shutdown" Version="1.0.0" />
     <PackageReference Include="JAJ.Packages.MiniAudioEx" Version="3.0.0" />
+    <PackageReference Include="String.Similarity" Version="3.0.0" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
   </ItemGroup>
 

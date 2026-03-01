@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using F23.StringSimilarity;
 
 namespace Lyrbd.Daemon;
 public static class LibraryManager {
@@ -48,11 +49,13 @@ public static class LibraryManager {
     }
     public static string[] Search(string query, int results) {
         (AddressType addressType, string _) = ParseAddress(query, true);
-
+       
+        Cosine stringComparer = new Cosine();
+        
         string[] topResults;
         if (addressType == AddressType.INVALID) {
             topResults = _addressLookup
-                .OrderByDescending(pair => _stringDistance(pair.Value, query))
+                .OrderByDescending(pair => stringComparer.Similarity(pair.Value, query))
                 .ThenBy(pair => pair.Key)
                 .Select(pair => pair.Key)
                 .Take(results)
@@ -61,7 +64,7 @@ public static class LibraryManager {
         else {
             topResults = _addressLookup
                 .Where(pair => pair.Key.StartsWith(addressType.ToString(), StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(pair => _stringDistance(pair.Value, query))
+                .OrderByDescending(pair => stringComparer.Similarity(pair.Value, query))
                 .ThenBy(pair => pair.Key)
                 .Select(pair => pair.Key)
                 .Take(results)
@@ -250,76 +253,17 @@ public static class LibraryManager {
     }
     private static void _generateAddressLookup() {
         _addressLookup = _registry._tracks
-            .ToDictionary(track => $"track:{track.Key}", track => track.Value.Title)
+            .ToDictionary(track => $"track:{track.Key}", track => track.Value.Title.ToLower())
             .Concat(
-                _registry._playlists.ToDictionary(playlist => $"playlist:{playlist.Key}", playlist => playlist.Key)
+                _registry._playlists.ToDictionary(playlist => $"playlist:{playlist.Key}", playlist => playlist.Key.ToLower())
             )
             .Concat(
-                _artists.ToDictionary(artist => $"artist:{artist.Key}", artist => artist.Key)
+                _artists.ToDictionary(artist => $"artist:{artist.Key}", artist => artist.Key.ToLower())
             )
             .Concat(
-                _albums.ToDictionary(album => $"album:{album.Key}", album => album.Key)
+                _albums.ToDictionary(album => $"album:{album.Key}", album => album.Key.ToLower())
             )
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-    }
-
-    private static double _stringDistance(string s1, string s2) {
-        if (s1 == s2) return 1.0;
-
-        int len1 = s1.Length;
-        int len2 = s2.Length;
-
-        if (len1 == 0 || len2 == 0) return 0.0;
-
-        int maxDistance = (int)Math.Floor(Math.Max(len1, len2) / 2.0) - 1;
-
-        int[] hashS1 = new int[len1];
-        int[] hashS2 = new int[len2];
-
-        int match = 0;
-
-        for (int i = 0; i < len1; i++) {
-            for (int j = Math.Max(0, i - maxDistance); j < Math.Min(len2, i + maxDistance + 1); j++) {
-                if (s1[i] == s2[j] && hashS2[j] == 0) {
-                    hashS1[i] = 1;
-                    hashS2[j] = 1;
-                    match++;
-                    break;
-                }
-            }
-        }
-
-        if (match == 0) return 0.0;
-
-        double t = 0;
-        int point = 0;
-        for (int i = 0; i < len1; i++) {
-            if (hashS1[i] == 1) {
-                while (hashS2[point] == 0)
-                    point++;
-
-                if (s1[i] != s2[point++])
-                    t++;
-            }
-        }
-
-        double jaroDistance = (((double)match / len1) +
-                            ((double)match / len2) +
-                            ((double)(match - t / 2.0) / match)) / 3.0;
-
-        double prefixBonus = 0;
-        if (jaroDistance > 0.7) {
-            int prefix = 0;
-            for (int i = 0; i < Math.Min(4, Math.Min(len1, len2)); i++) {
-                if (s1[i] == s2[i])
-                    prefix++;
-                else
-                    break;
-            }
-            prefixBonus = 0.1 * prefix * (1 - jaroDistance);
-        }
-
-        return jaroDistance + prefixBonus;
     }
 }
 
