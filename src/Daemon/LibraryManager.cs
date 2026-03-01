@@ -7,6 +7,8 @@ public static class LibraryManager {
     private static Registry _registry;
     private static Dictionary<string, Artist> _artists;
     private static Dictionary<string, Album> _albums;
+    
+    private static string[] _allAddresses;
 
     public static Track Track(string id) {
         if (int.TryParse(id, out int index)) id = ParseAddress(Query.AddressFromIndex(index)).id;
@@ -130,6 +132,13 @@ public static class LibraryManager {
         };
     }
     public static (AddressType type, string id) ParseAddress(string address) {
+        Dictionary<string, int> levenshteinDistances = new();
+        for (int i = 0; i < _allAddresses.Length; ++i) {
+            levenshteinDistances.Add(_allAddresses[i], _levenshteinDistance(_allAddresses[i], address));
+        }
+        levenshteinDistances = levenshteinDistances.OrderBy(kv => kv.Value).ThenBy(kv => kv.Key).ToDictionary(kv => kv.Key, kv => kv.Value);
+        address = levenshteinDistances.ElementAt(0).Key;
+
         string[] parts = address.Split(':', 2);
 
         if (parts.Length < 2) {
@@ -217,6 +226,62 @@ public static class LibraryManager {
             Album album = new(tracks, artists);
             _albums.Add(track.Album, album);
         }
+
+        _generateAllAddresses();
+    }
+    private static void _generateAllAddresses() {
+        List<string> allAddresses = new();
+
+        for (int i = 0; i < _registry._tracks.Count; ++i) {
+            allAddresses.Add($"track:{_registry._tracks.ElementAt(i).Key}");
+        }
+        for (int i = 0; i < _registry._playlists.Count; ++i) {
+            allAddresses.Add($"playlist:{_registry._playlists.ElementAt(i).Key}");
+        }
+        for (int i = 0; i < _artists.Count; ++i) {
+            allAddresses.Add($"artist:{_artists.ElementAt(i).Key}");
+        }
+        for (int i = 0; i < _albums.Count; ++i) {
+            allAddresses.Add($"album:{_albums.ElementAt(i).Key}");
+        }
+
+        _allAddresses = [.. allAddresses];
+    }
+
+    private static int _levenshteinDistance(string s, string t) {
+        s = s.ToLower();
+        t = t.ToLower();
+        
+        int m = s.Length;
+        int n = t.Length;
+        int[,] d = new int[m + 1, n + 1];
+        
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j <= n; j++) {
+                d[i, j] = 0;
+            }
+        }
+
+        for (int i = 1; i <= m; i++) {
+            d[i, 0] = i;
+        }
+
+        for (int j = 1; j <= n; j++) {
+            d[0, j] = j;
+        }
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                int substitutionCost = (s[i - 1] == t[j - 1]) ? 0 : 1;
+
+                d[i, j] = Math.Min(
+                    Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
+                    d[i - 1, j - 1] + substitutionCost
+                );
+            }
+        }
+
+        return d[m, n];
     }
 }
 
