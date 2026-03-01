@@ -85,7 +85,7 @@ public static class LibraryManager {
             FileHandler.Delete(id);
         }
 
-        string[] deletionQueue = TracksFromAddress(address);
+        string[] deletionQueue = TracksFromAddress(address, true);
 
         for (int i = 0; i < deletionQueue.Length; ++i) {
             string trackId = deletionQueue[i];
@@ -129,12 +129,12 @@ public static class LibraryManager {
         _updateSavedData();
     }
 
-    public static string[] TracksFromAddress(string address) {
+    public static string[] TracksFromAddress(string address, bool disableFuzzySearch = false) {
         if (int.TryParse(address, out int index)) address = Query.AddressFromIndex(index);
 
         if (!ValidAddress(address)) return [];
 
-        (AddressType type, string id) = ParseAddress(address);
+        (AddressType type, string id) = ParseAddress(address, disableFuzzySearch);
 
         return type switch
         {

@@ -18,7 +18,6 @@ public static class Query {
         if (address == "address") address = QueueHandler.Address();
 
         string output = default;
-
         switch (type) {
             case "current":
                 _lastAddressQueryType = AddressType.TRACK;
@@ -79,7 +78,7 @@ public static class Query {
 
     private static string _lookupLength(string address) {
         if (address == default) address = $"track:{QueueHandler.TrackId()}";
-
+        
         string[] tracks = LibraryManager.TracksFromAddress(address);
 
         double sum = 0;
