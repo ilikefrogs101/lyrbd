@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using F23.StringSimilarity;
+using FuzzySharp;
 
 namespace Lyrbd.Daemon;
 public static class LibraryManager {
@@ -49,13 +49,11 @@ public static class LibraryManager {
     }
     public static string[] Search(string query, int results) {
         (AddressType addressType, string _) = ParseAddress(query, true);
-       
-        Cosine stringComparer = new Cosine();
-        
+               
         string[] topResults;
         if (addressType == AddressType.INVALID) {
             topResults = _addressLookup
-                .OrderByDescending(pair => stringComparer.Similarity(pair.Value, query))
+                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Value, query))
                 .ThenBy(pair => pair.Key)
                 .Select(pair => pair.Key)
                 .Take(results)
@@ -64,7 +62,7 @@ public static class LibraryManager {
         else {
             topResults = _addressLookup
                 .Where(pair => pair.Key.StartsWith(addressType.ToString(), StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(pair => stringComparer.Similarity(pair.Value, query))
+                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Value, query))
                 .ThenBy(pair => pair.Key)
                 .Select(pair => pair.Key)
                 .Take(results)
