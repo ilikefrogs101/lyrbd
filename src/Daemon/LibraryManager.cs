@@ -227,7 +227,7 @@ public static class LibraryManager {
             }
             else {
                 List<string> tracks = [TrackId(track)];
-                List<string> albums = [track.Album];
+                HashSet<string> albums = [track.Album];
 
                 Artist artist = new(tracks, albums);
                 _artists.Add(track.Artists[i], artist);
@@ -243,7 +243,7 @@ public static class LibraryManager {
         }
         else {
             List<string> tracks = [TrackId(track)];
-            List<string> artists = [.. track.Artists];
+            HashSet<string> artists = [.. track.Artists];
 
             Album album = new(tracks, artists);
             _albums.Add(track.Album, album);
@@ -293,9 +293,9 @@ public record Playlist(
 
 public record Artist(
 	List<string> Tracks,
-	List<string> Albums
+	HashSet<string> Albums
 );
 public record Album(
 	List<string> Tracks,
-	List<string> Artists
+	HashSet<string> Artists
 );
