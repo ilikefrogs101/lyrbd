@@ -48,7 +48,8 @@ public class MiniAudioExBackend : AudioBackend {
         if (frame < _source.Cursor || frame == _source.Length) {
             frame = _source.Length;
         }
-        _source.Cursor = frame;     
+		_pausedFrame = frame;
+        _source.Cursor = frame;
     }
     public override void Backward(double seconds) {
         ulong frame = _source.Cursor - _secondsToFrames(seconds);
@@ -56,12 +57,14 @@ public class MiniAudioExBackend : AudioBackend {
         if (frame > _source.Cursor) {
             frame = 0;
         }
+		_pausedFrame = frame;
         _source.Cursor = frame; 
     }
     public override void SkipTo(double seconds) {
         ulong frame = _secondsToFrames(seconds);
         frame = Math.Clamp(frame, 0, _source.Length);
 
+		_pausedFrame = frame;
         _source.Cursor = frame;
     }
     public override void SetVolume(float volume) {

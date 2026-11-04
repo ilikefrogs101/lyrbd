@@ -9,12 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ilikefrogs101.CLI" Version="1.2.0" />
+    <PackageReference Include="ilikefrogs101.CLI" Version="1.4.1" />
     <PackageReference Include="ilikefrogs101.IPC" Version="1.0.0" />
     <PackageReference Include="ilikefrogs101.Logging" Version="1.0.0" />
     <PackageReference Include="ilikefrogs101.Shutdown" Version="1.0.0" />
     <PackageReference Include="JAJ.Packages.MiniAudioEx" Version="3.3.5" />
-		<PackageReference Include="FuzzySharp" Version="2.0.2" />
+	<PackageReference Include="FuzzySharp" Version="2.0.2" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
   </ItemGroup>
 
