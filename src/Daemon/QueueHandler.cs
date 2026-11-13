@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ilikefrogs101.Logging;
 
 namespace Lyrbd.Daemon;
 public static class QueueHandler {
@@ -93,7 +94,6 @@ public static class QueueHandler {
     private static void _buildQueue() {
         _queueIndex = 0;
         _queue = [.. LibraryManager.TracksFromAddress(_sourceAddress)];
-
         if (_shuffle) {
             _shuffleQueue();
         }
@@ -108,7 +108,6 @@ public static class QueueHandler {
                 return;
             }
         }
-        
         _trackId = _queue[_queueIndex];
         AudioHandler.Play(_trackId);
         ++_queueIndex;

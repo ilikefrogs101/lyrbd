@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FuzzySharp;
+using ilikefrogs101.Logging;
 
 namespace Lyrbd.Daemon;
 public static class LibraryManager {
@@ -53,7 +54,7 @@ public static class LibraryManager {
         string[] topResults;
         if (addressType == AddressType.INVALID) {
             topResults = _addressLookup
-                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Value, query))
+                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Key, query))
                 .ThenBy(pair => pair.Key)
                 .Select(pair => pair.Key)
                 .Take(results)
@@ -62,13 +63,13 @@ public static class LibraryManager {
         else {
             topResults = _addressLookup
                 .Where(pair => pair.Key.StartsWith(addressType.ToString(), StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Value, query))
+                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Key, query))
                 .ThenBy(pair => pair.Key)
                 .Select(pair => pair.Key)
                 .Take(results)
                 .ToArray();
         }
-                
+            
         return topResults;
     }
     

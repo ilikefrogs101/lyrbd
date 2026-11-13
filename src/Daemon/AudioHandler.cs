@@ -1,3 +1,5 @@
+using ilikefrogs101.Logging;
+
 namespace Lyrbd.Daemon;
 public static class AudioHandler {
     public static event Action OnCurrentTrackEnd;
@@ -5,7 +7,6 @@ public static class AudioHandler {
 
     public static void Play(string id) {
         if (_backend == null) return;
-
         _backend.Play(FileHandler.DataPath(id));
     }
     public static void Pause(bool paused) {
