@@ -54,7 +54,7 @@ public static class LibraryManager {
         string[] topResults;
         if (addressType == AddressType.INVALID) {
             topResults = _addressLookup
-                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Key, query))
+                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Key.ToLower(), query.ToLower()))
                 .ThenBy(pair => pair.Key)
                 .Select(pair => pair.Key)
                 .Take(results)
@@ -63,7 +63,7 @@ public static class LibraryManager {
         else {
             topResults = _addressLookup
                 .Where(pair => pair.Key.StartsWith(addressType.ToString(), StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Key, query))
+                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Key.ToLower(), query.ToLower()))
                 .ThenBy(pair => pair.Key)
                 .Select(pair => pair.Key)
                 .Take(results)
