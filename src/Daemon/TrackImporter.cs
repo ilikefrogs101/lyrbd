@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using ilikefrogs101.CustomExtensions;
 
 namespace Lyrbd.Daemon;
 public static class TrackImporter {
@@ -70,49 +71,56 @@ public static class TrackImporter {
     }
     private static string _getTitleFromFile(string path) {
         if(TitleOverride != default) {
-            return TitleOverride;
+            return TitleOverride.Standardise();
         }
 
         TagLib.File tagFile = TagLib.File.Create(path);
 
         if(!string.IsNullOrWhiteSpace(tagFile.Tag.Title)) {
-            return tagFile.Tag.Title;
+            return tagFile.Tag.Title.Standardise();
         }
 
-        string title = Path.GetFileNameWithoutExtension(path);
-        
-        if(StripPunctuation) {
-            title = Regex.Replace(title, @"[^\w\s]", "");
-        }
-        if(StripNumbers) {
-            title = Regex.Replace(title, @"\d+", "");
-        }
+        string title = Path.GetFileNameWithoutExtension(path).Standardise();
+
         if(AutoSpace) {
             title = title.Replace('_', ' ');
             title = title.Replace('-', ' ');
             title = Regex.Replace(title, "(?<!^)([A-Z])", " $1");
         }
-        title = Regex.Replace(title, @"\s+", " ").Trim();
+        
+        if(StripPunctuation) title = title.RemovePunctuation();
+        if(StripNumbers) title = title.RemoveNumbers();
+
         if(AutoCapitalise) {
-            title = Regex.Replace(title, @"(^|\s)(\S)", match =>
-            {
+            title = char.ToUpperInvariant(title[0]) + title[1..];
+            title = Regex.Replace(title, @"(^|\s)(\S)", match => {
                 return match.Groups[1].Value + match.Groups[2].Value.ToUpper();
             });
         }
-        return title;
+
+        return title.Standardise();
     }
     private static string[] _getArtistsFromFile(string path) {
+        string[] artists;
+
         if(ArtistsOverride != default) {
-            return ArtistsOverride;
+            artists = new string[ArtistsOverride.Length];
+            for (int i = 0; i < artists.Length; ++i) {
+                artists[i] = ArtistsOverride[i].Standardise();
+            }           
+            return artists;
         }
 
         TagLib.File tagFile = TagLib.File.Create(path);
-
-        return tagFile.Tag.Performers;
+        artists = new string[tagFile.Tag.Performers.Length];
+        for (int i = 0; i < artists.Length; ++i) {
+            artists[i] = tagFile.Tag.Performers[i].Standardise();
+        }
+        return artists;
     }
     private static string _getAlbumFromFile(string path) {
         if(AlbumOverride != default) {
-            return AlbumOverride;
+            return AlbumOverride.Standardise();
         }
         if(Single) {
             return _getTitleFromFile(path);
@@ -121,28 +129,25 @@ public static class TrackImporter {
         TagLib.File tagFile = TagLib.File.Create(path);
 
         if(!string.IsNullOrWhiteSpace(tagFile.Tag.Album)) {
-            return tagFile.Tag.Album;
+            return tagFile.Tag.Album.Standardise();
         }
 
-        return Path.GetFileName(Path.GetDirectoryName(path));
+        return Path.GetFileName(Path.GetDirectoryName(path)).Standardise();
     }
     private static uint _getTrackNumberFromFile(string path) {
         if (TrackNumberOverride != default) {
             return TrackNumberOverride;
         }
 
-        using (TagLib.File tagFile = TagLib.File.Create(path))
-        {
-            if (tagFile.Tag.Track != 0)
-            {
+        using (TagLib.File tagFile = TagLib.File.Create(path)) {
+            if (tagFile.Tag.Track != 0) {
                 return tagFile.Tag.Track;
             }
         }
 
         string fileName = Path.GetFileNameWithoutExtension(path);
         Match match = Regex.Match(fileName, @"^\s*(\d{1,3})");
-        if (match.Success && uint.TryParse(match.Groups[1].Value, out uint trackNumber))
-        {
+        if (match.Success && uint.TryParse(match.Groups[1].Value, out uint trackNumber)) {
             return trackNumber;
         }
 

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FuzzySharp;
-using ilikefrogs101.Logging;
+using ilikefrogs101.CustomExtensions;
 
 namespace Lyrbd.Daemon;
 public static class LibraryManager {
@@ -49,12 +49,12 @@ public static class LibraryManager {
         return [.. _albums.Keys];
     }
     public static string[] Search(string query, int results) {
-        (AddressType addressType, string _) = ParseAddress(query, true);
-               
+        (AddressType addressType, string name) = ParseAddress(query, true);
+        
         string[] topResults;
         if (addressType == AddressType.INVALID) {
             topResults = _addressLookup
-                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Key.ToLower(), query.ToLower()))
+                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Value, query.StandardiseForSearch()))
                 .ThenBy(pair => pair.Key)
                 .Select(pair => pair.Key)
                 .Take(results)
@@ -63,7 +63,7 @@ public static class LibraryManager {
         else {
             topResults = _addressLookup
                 .Where(pair => pair.Key.StartsWith(addressType.ToString(), StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Key.ToLower(), query.ToLower()))
+                .OrderByDescending(pair => Fuzz.PartialRatio(pair.Value, name.StandardiseForSearch()))
                 .ThenBy(pair => pair.Key)
                 .Select(pair => pair.Key)
                 .Take(results)
@@ -252,15 +252,15 @@ public static class LibraryManager {
     }
     private static void _generateAddressLookup() {
         _addressLookup = _registry._tracks
-            .ToDictionary(track => $"track:{track.Key}", track => track.Value.Title.ToLower())
+            .ToDictionary(track => $"track:{track.Key}", track => track.Value.Title.StandardiseForSearch())
             .Concat(
-                _registry._playlists.ToDictionary(playlist => $"playlist:{playlist.Key}", playlist => playlist.Key.ToLower())
+                _registry._playlists.ToDictionary(playlist => $"playlist:{playlist.Key}", playlist => playlist.Key.StandardiseForSearch())
             )
             .Concat(
-                _artists.ToDictionary(artist => $"artist:{artist.Key}", artist => artist.Key.ToLower())
+                _artists.ToDictionary(artist => $"artist:{artist.Key}", artist => artist.Key.StandardiseForSearch())
             )
             .Concat(
-                _albums.ToDictionary(album => $"album:{album.Key}", album => album.Key.ToLower())
+                _albums.ToDictionary(album => $"album:{album.Key}", album => album.Key.StandardiseForSearch())
             )
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
