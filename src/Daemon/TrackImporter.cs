@@ -1,7 +1,7 @@
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using ilikefrogs101.CustomExtensions;
+using ilikefrogs101.FileHandling;
 
 namespace Lyrbd.Daemon;
 public static class TrackImporter {
@@ -41,13 +41,13 @@ public static class TrackImporter {
         Track track = new Track(title, artists, album, trackNumber, duration);
         string trackId = LibraryManager.TrackId(track);
 
-        FileHandler.Import(path, trackId);
+        FileSystem.Copy(new(path), new(trackId, PathOrigin.DATA));
         LibraryManager.AddTrack(track);
     }
     private static void _importFolder(string path) {
         TrackNumberOverride = default;
         
-        string[] paths = [.. Directory.GetFiles(path).OrderBy(Path.GetFileName)];        
+        string[] paths = [.. Directory.GetFiles(path).OrderBy(x => PathUtils.ResolvePathName(new(x)))];        
         for (uint i = 0; i < paths.Length; ++i) {
             _import(paths[i]);
 
@@ -80,7 +80,7 @@ public static class TrackImporter {
             return tagFile.Tag.Title.Standardise();
         }
 
-        string title = Path.GetFileNameWithoutExtension(path).Standardise();
+        string title = PathUtils.ResolvePathName(new(path)).Standardise();
 
         if(AutoSpace) {
             title = title.Replace('_', ' ');
@@ -132,7 +132,7 @@ public static class TrackImporter {
             return tagFile.Tag.Album.Standardise();
         }
 
-        return Path.GetFileName(Path.GetDirectoryName(path)).Standardise();
+        return PathUtils.ResolvePathName(PathUtils.ResolveDirectory(new(path))).Standardise();
     }
     private static uint _getTrackNumberFromFile(string path) {
         if (TrackNumberOverride != default) {
@@ -145,7 +145,7 @@ public static class TrackImporter {
             }
         }
 
-        string fileName = Path.GetFileNameWithoutExtension(path);
+        string fileName = PathUtils.ResolvePathName(new(path));
         Match match = Regex.Match(fileName, @"^\s*(\d{1,3})");
         if (match.Success && uint.TryParse(match.Groups[1].Value, out uint trackNumber)) {
             return trackNumber;

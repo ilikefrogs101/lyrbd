@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Text.Json;
 using FuzzySharp;
 using ilikefrogs101.CustomExtensions;
+using ilikefrogs101.FileHandling;
 
 namespace Lyrbd.Daemon;
 public static class LibraryManager {
@@ -81,7 +80,7 @@ public static class LibraryManager {
     public static void Delete(string address) {
         static void deleteTrack(string id) {
             _registry._tracks.Remove(id);
-            FileHandler.Delete(id);
+            FileSystem.Delete(new(id, PathOrigin.DATA));
         }
 
         string[] deletionQueue = TracksFromAddress(address, true);
@@ -180,14 +179,21 @@ public static class LibraryManager {
     }
 
     public static void Initialise() {
-        _registry = FileHandler.LoadRegistry();
+        _loadRegistry();
         _updateNonPersistantData();
     }
 
+    private static void _loadRegistry() {
+        ilikefrogs101.FileHandling.Path registryPath = new("registry.json", PathOrigin.DATA);
+        if (!registryPath.Exists()) _registry = new(new(), new());
+
+        _registry = JsonSerializer.Deserialize<Registry>(registryPath.Read());
+    }
     private static void _updateSavedData() {
         _orderAddresses();
 
-        FileHandler.SaveRegistry(_registry);
+        ilikefrogs101.FileHandling.Path registryPath = new("registry.json", PathOrigin.DATA);
+        registryPath.Write(JsonSerializer.Serialize(_registry));
     }
     private static void _updateNonPersistantData() {
         _artists = new();
@@ -262,7 +268,7 @@ public static class LibraryManager {
             .Concat(
                 _albums.ToDictionary(album => $"album:{album.Key}", album => album.Key.StandardiseForSearch())
             )
-            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            .ToDictionary();
     }
 }
 
